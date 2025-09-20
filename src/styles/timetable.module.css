@@ -1,0 +1,49 @@
+:root {
+  --primary-blue: #2d72ff;
+  --secondary-blue: #447ff8;
+  --header-color: #ffffff;
+  --primary-background: #f9fafc;
+  --lines-border: #e4e7ed;
+  --lightgray-text: #9ba4b5;
+  --darkgray-text: #5a5e65;
+  --black-text: #333333;
+  --app-logo: #3b82f6;
+  --secondary-blue-20: rgba(131, 170, 248, 0.804);
+}
+
+.timetable {
+    background-color: var(--primary-background);
+}
+
+.schedule-and-controls {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0.5rem;
+  align-items: center;
+}
+
+.schedule-and-controls button {
+  background-color: var(--secondary-blue);
+  border: none;
+  width: calc(100% / 3);
+  color: white;
+  height: 40px;
+  outline: 1px solid black;
+}
+
+.buttons-container {
+  width: 15vw;
+  margin: 0 5rem;
+  display: flex;
+  height: 30px;
+  justify-content: space-evenly;
+  border-radius: 8px;
+}
+
+.left {
+  border-radius: 8px 0 0 8px;
+}
+
+.right {
+  border-radius: 0 8px 8px 0;
+}
