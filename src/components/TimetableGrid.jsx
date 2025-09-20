@@ -59,8 +59,8 @@ const TimetableGrid = () => {
               className={`${style["grid-item"]} ${style["time-label"]}`}
               key={`time-${timeIndex}`}
             >
-              <h3>{Time.startTime}</h3>
-              <h4>{Time.endTime}</h4>
+              <h3 className={style["start-time"]}>{Time.startTime}</h3>
+              <h4 className={style["end-time"]}>{Time.endTime}</h4>
             </div>
             {/* Creates a cell for each day of the week within this hour */}
             {Days.map((Day) => (
@@ -81,7 +81,7 @@ const TimetableGrid = () => {
 const generateTimetableTimes = () => {
   //Dynamically add times from 6AM to 11PM for the Times rows
   const timetableHours = [];
-  for (let hour = 6; hour <= 22; hour++) {
+  for (let hour = 6; hour <= 23; hour++) {
     const isPM = hour >= 12;
     const displayStartHour = isPM ? (hour === 12 ? 12 : hour - 12) : hour;
     const displayEndHour = isPM

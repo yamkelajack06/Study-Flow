@@ -17,6 +17,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1.5px;
+  width: 90%;
 }
 
 .grid-item {
@@ -29,9 +30,10 @@
   text-align: center;
 }
 
-.time-label h3,
-h4 {
+.time-label .start-time,
+.end-time {
   margin-left: 1rem;
+  color: var(--darkgray-text);
 }
 
 .grid-item.empty-cell {
@@ -41,4 +43,8 @@ h4 {
 
 .grid-item.empty-cell h3 {
   margin: 1rem;
+}
+
+h4, .end-time {
+  color: var(--lightgray-text);
 }

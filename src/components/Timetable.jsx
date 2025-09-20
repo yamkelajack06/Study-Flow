@@ -1,6 +1,7 @@
 import styles from "../styles/timetable.module.css";
 import TimetableGrid from "./TimetableGrid";
-import calendarIcon from "../assets/calendar-icon.svg";
+import calendarIcon from "../assets/calendar-blue.svg";
+import { useState } from "react";
 
 const Timetable = () => {
   return (
@@ -22,11 +23,37 @@ const Timetable = () => {
 };
 
 const GridView = () => {
+  //This is for tracking which button is clicked currently
+  const [isClicked, setIsClicked] = useState("Week");
+
+  const handleClick = (buttonName) => {
+    setIsClicked(buttonName);
+  };
+
   return (
     <div className={styles["buttons-container"]}>
-      <button className={styles["left"]}>Day</button>
-      <button>Week</button>
-      <button className={styles["right"]}>Month</button>
+      <button
+        className={`${styles["left"]} ${
+          isClicked === "Day" ? styles["clicked"] : ""
+        }`}
+        onClick={() => handleClick("Day")}
+      >
+        Day
+      </button>
+      <button
+        className={isClicked === "Week" ? styles["clicked"] : ""}
+        onClick={() => handleClick("Week")}
+      >
+        Week
+      </button>
+      <button
+        className={`${styles["right"]} ${
+          isClicked === "Month" ? styles["clicked"] : ""
+        }`}
+        onClick={() => handleClick("Month")}
+      >
+        Month
+      </button>
     </div>
   );
 };

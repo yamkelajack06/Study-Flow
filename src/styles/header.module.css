@@ -9,6 +9,7 @@
   --black-text: #333333;
   --app-logo: #3b82f6;
   --secondary-blue-20: rgba(131, 170, 248, 0.804);
+  --gray-ish-blue: #84a0e4;
 }
 /* 1 rem = 16px remember*/
 header {
@@ -78,6 +79,11 @@ header {
   justify-content: center;
 }
 
+.header-controls button:hover {
+    background-color: var(--gray-ish-blue);
+    color: white;
+}
+
 .theme-toggle {
   border-radius: 20px;
   height: 40px;
@@ -87,7 +93,8 @@ header {
   align-items: center;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.theme-toggle:hover button {
   background-color: var(--secondary-blue-20);
 }
 
@@ -95,6 +102,7 @@ header {
   height: 25px;
   width: 25px;
   border-radius: calc(25px / 2);
+  background-color: var(--header-color);
 }
 
 .date {

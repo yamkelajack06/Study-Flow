@@ -12,7 +12,10 @@
 }
 
 .timetable {
-    background-color: var(--primary-background);
+  background-color: var(--primary-background);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .schedule-and-controls {
@@ -20,15 +23,25 @@
   justify-content: space-between;
   margin: 0 0.5rem;
   align-items: center;
+  width: 90%;
+}
+
+.schedule img {
+  margin: 0 1rem;
+}
+
+.clicked {
+  color: white !important;
+  background-color: var(--secondary-blue) !important;
 }
 
 .schedule-and-controls button {
-  background-color: var(--secondary-blue);
+  background-color: var(--lines-border);
   border: none;
   width: calc(100% / 3);
-  color: white;
+  color: black;
   height: 40px;
-  outline: 1px solid black;
+  transition: background-color 0.2s ease;
 }
 
 .buttons-container {

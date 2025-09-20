@@ -1,12 +1,12 @@
 import bookIcon from "../assets/book-icon.svg";
 import addIcon from "../assets/add-icon.svg";
-import darkModeIcon from "../assets/dark-mode-icon.svg";
-import styles from "../styles/header.module.css";  // Import as styles object
+import darkModeIcon from "../assets/moon-blue.svg";
+import styles from "../styles/header.module.css"; // Import as styles object
 
 const Header = () => {
   return (
     <header className={styles["header"]}>
-      <div className={styles["app-title"]}> 
+      <div className={styles["app-title"]}>
         <img src={bookIcon} alt="book icon" />
         <div className={styles["description"]}>
           <h1>Study Timetable</h1>
@@ -15,7 +15,7 @@ const Header = () => {
 
       <div className={styles["header-controls"]}>
         <div className={styles["date"]}>
-          <p className = {styles["day-desc"]}>Today</p>
+          <p className={styles["day-desc"]}>Today</p>
           <p className={styles["date-desc"]}>Saturday, 20 September, 2025</p>
         </div>
         <button>
