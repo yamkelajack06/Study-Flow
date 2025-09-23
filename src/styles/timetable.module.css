@@ -76,11 +76,11 @@
   background-color: var(--secondary-blue) !important;
 }
 
-.left {
+.button-control-left {
   border-radius: 8px 0 0 8px;
 }
 
-.right {
+.button-control-right {
   border-radius: 0 8px 8px 0;
   margin-right: 1rem;
 }

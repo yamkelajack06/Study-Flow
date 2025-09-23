@@ -31,7 +31,7 @@ const GridView = () => {
   return (
     <>
       <button
-        className={`${styles["left"]} ${
+        className={`${styles["button-control-left"]} ${
           isClicked === "Day" ? styles["clicked"] : ""
         }`}
         onClick={() => handleClick("Day")}
@@ -45,7 +45,7 @@ const GridView = () => {
         Week
       </button>
       <button
-        className={`${styles["right"]} ${
+        className={`${styles["button-control-right"]} ${
           isClicked === "Month" ? styles["clicked"] : ""
         }`}
         onClick={() => handleClick("Month")}

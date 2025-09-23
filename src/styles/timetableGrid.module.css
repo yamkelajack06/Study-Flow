@@ -15,9 +15,10 @@
   outline: 2px solid var(--lines-border);
   margin: 1rem;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   gap: 1.5px;
   width: 90%;
+  max-width: 1400px;
 }
 
 .grid-item {

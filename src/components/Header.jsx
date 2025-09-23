@@ -1,8 +1,8 @@
 import addIcon from "../assets/add-icon.svg";
 import darkModeIcon from "../assets/moon-blue.svg";
-import styles from "../styles/header.module.css"; // Import as styles object
+import styles from "../styles/header.module.css";
 
-const Header = () => {
+const Header = ({ onOpenModal }) => {
   return (
     <header className={styles["header"]}>
       <div className={styles["header-inner-container"]}>
@@ -14,8 +14,8 @@ const Header = () => {
             <p className={styles["day-desc"]}>Today</p>
             <p className={styles["date-desc"]}>Saturday, 20 September, 2025</p>
           </div>
-          <button className = {styles["add-entry"]}>
-            <img src={addIcon} alt="Add entry icon" /> Add Entry
+          <button className={styles["add-entry"]} onClick={onOpenModal}>
+            <img src={addIcon} alt="Add entry icon" /> <p>Add Entry</p>
           </button>
           <div className={styles["theme-toggle"]}>
             <button>

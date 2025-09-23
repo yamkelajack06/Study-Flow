@@ -22,6 +22,10 @@ const TimetableGrid = () => {
       abbreviation: "Thu",
     },
     {
+      day: "Friday",
+      abbreviation: "Fri",
+    },
+    {
       day: "Saturday",
       abbreviation: "Sat",
     },
