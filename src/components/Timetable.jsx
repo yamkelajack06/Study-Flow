@@ -8,10 +8,8 @@ const Timetable = () => {
     <div className={styles["timetable"]}>
       <div className={styles["schedule-and-controls"]}>
         <div className={styles["schedule"]}>
-          <h1>
-            <img src={calendarIcon} alt="calendar icon" />
-            Weekly Schedule
-          </h1>
+          <img src={calendarIcon} alt="calendar icon" />
+          <h1>Weekly Schedule</h1>
         </div>
         <div className={styles["controls"]}>
           <GridView />
@@ -31,7 +29,7 @@ const GridView = () => {
   };
 
   return (
-    <div className={styles["buttons-container"]}>
+    <>
       <button
         className={`${styles["left"]} ${
           isClicked === "Day" ? styles["clicked"] : ""
@@ -54,7 +52,7 @@ const GridView = () => {
       >
         Month
       </button>
-    </div>
+    </>
   );
 };
 
