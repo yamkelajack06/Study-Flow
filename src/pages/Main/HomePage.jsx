@@ -2,6 +2,7 @@ import { createContext, useState } from "react";
 import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
+import EditEntry from "../../components/EditEntryModal";
 
 //Entries context to be shared with the Add/Delete entry form
 const EntryContext = createContext({
@@ -13,6 +14,7 @@ const EntryContext = createContext({
 
 const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
   //This will store the timetable entries, each entry will be an object
   const [entries, setEntries] = useState([]);
 
@@ -38,12 +40,15 @@ const HomePage = () => {
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpenEntryModal = () => setIsEditEntryOpen(true);
+  const handleCloseOpenEntryModal = () => setIsEditEntryOpen(false);
 
   return (
-    <EntryContext.Provider value={{ entries, addEntries, deleteEntries,handleCloseModal }}>
+    <EntryContext.Provider value={{ entries, addEntries, deleteEntries,handleCloseModal,handleOpenEntryModal,handleCloseOpenEntryModal }}>
       <Header onOpenModal={handleOpenModal} />
       <Timetable />
       {isModalOpen && <Modal onClose={handleCloseModal} />}
+      {isEditEntryOpen && <EditEntry onClose={handleCloseOpenEntryModal}/>}
     </EntryContext.Provider>
   );
 };

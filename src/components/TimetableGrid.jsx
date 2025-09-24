@@ -6,7 +6,7 @@ import TimetableEntry from "./TimetableEntry";
 import findEntriesForCell from "../utils/findGridEntry";
 
 const TimetableGrid = () => {
-  const { entries } = useContext(EntryContext);
+  const { entries, handleOpenEntryModal } = useContext(EntryContext);
   const timetableHours = generateTimetableTimes();
   const Days = Days_Const;
 
@@ -45,7 +45,11 @@ const TimetableGrid = () => {
               >
                 {/* Map over the found entries and render them all */}
                 {entriesForCell.map((entry, entryIndex) => (
-                  <TimetableEntry key={entryIndex} entry={entry} />
+                  <TimetableEntry
+                    key={entryIndex}
+                    entry={entry}
+                    onOpenModal={handleOpenEntryModal}
+                  />
                 ))}
               </div>
             );
