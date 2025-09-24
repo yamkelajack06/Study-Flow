@@ -2,6 +2,7 @@ import styles from "../styles/timetable.module.css";
 import TimetableGrid from "./TimetableGrid";
 import calendarIcon from "../assets/calendar-blue.svg";
 import { useState } from "react";
+import TimetableEntry from "./TimetableEntry";
 
 const Timetable = () => {
   return (

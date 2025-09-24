@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
+import { EntryContext } from "../pages/Main/HomePage";
 
 const AddEntry = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ const AddEntry = ({ onClose }) => {
     endTime: "",
     notes: "",
   });
+
+  const { addEntries } = useContext(EntryContext);
 
   //This is the start and end time options
   const Times = generateTimetableTimes();
@@ -23,7 +26,7 @@ const AddEntry = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Add logic to submit form data
+    addEntries(formData);
     console.log("Form submitted:", formData);
     onClose();
   };
@@ -52,8 +55,8 @@ const AddEntry = ({ onClose }) => {
             <option value="" disabled>
               Select a day
             </option>
-            {Days.map((day) => (
-              <option key={day.day} value={day.day}>
+            {Days.map((day, idx) => (
+              <option key={`${day.day}+${idx}`} value={day.day}>
                 {day.day}
               </option>
             ))}
@@ -70,9 +73,9 @@ const AddEntry = ({ onClose }) => {
         </div>
         <div className={styles["time-container"]}>
           <div className={styles["input-field"]}>
-            <label htmlFor="start-time">Start Time</label>
+            <label htmlFor="startTime">Start Time</label>
             <select
-              id="start-time"
+              id="startTime"
               value={formData.startTime}
               onChange={handleInputChange}
               required
@@ -80,17 +83,17 @@ const AddEntry = ({ onClose }) => {
               <option value="" disabled>
                 Start Time
               </option>
-              {Times.map((time) => (
-                <option key={time.startTime} value={time.startTime}>
+              {Times.map((time, idx) => (
+                <option key={`${time.startTime}+${idx}`} value={time.startTime}>
                   {time.startTime}
                 </option>
               ))}
             </select>
           </div>
           <div className={styles["input-field"]}>
-            <label htmlFor="end-time">End Time</label>
+            <label htmlFor="endTime">End Time</label>
             <select
-              id="end-time"
+              id="endTime"
               value={formData.endTime}
               onChange={handleInputChange}
               required
@@ -98,8 +101,12 @@ const AddEntry = ({ onClose }) => {
               <option value="" disabled>
                 End Time
               </option>
-              {Times.map((time) => (
-                <option className= {styles["input-option"]} key={time.endTime} value={time.endTime}>
+              {Times.map((time, idx) => (
+                <option
+                  className={styles["input-option"]}
+                  key={`${time.endTime}+${idx}`}
+                  value={time.endTime}
+                >
                   {time.endTime}
                 </option>
               ))}

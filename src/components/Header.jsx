@@ -1,8 +1,10 @@
 import addIcon from "../assets/add-icon.svg";
 import darkModeIcon from "../assets/moon-blue.svg";
 import styles from "../styles/header.module.css";
+import getFormattedDate from "../utils/formatedDate";
 
 const Header = ({ onOpenModal }) => {
+  const date = getFormattedDate();
   return (
     <header className={styles["header"]}>
       <div className={styles["header-inner-container"]}>
@@ -12,7 +14,7 @@ const Header = ({ onOpenModal }) => {
         <div className={styles["header-controls"]}>
           <div className={styles["date"]}>
             <p className={styles["day-desc"]}>Today</p>
-            <p className={styles["date-desc"]}>Saturday, 20 September, 2025</p>
+            <p className={styles["date-desc"]}>{date}</p>
           </div>
           <button className={styles["add-entry"]} onClick={onOpenModal}>
             <img src={addIcon} alt="Add entry icon" /> <p>Add Entry</p>

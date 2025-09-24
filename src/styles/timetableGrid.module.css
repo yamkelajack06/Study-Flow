@@ -26,6 +26,10 @@
   outline: 0.2px solid var(--lines-border);
   height: auto;
   width: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .grid-item h3 {
@@ -67,6 +71,9 @@ h4,
   .grid-container {
     width: 97%;
     margin: 1rem auto;
+  }
+  .grid-item.day-header h3 {
+    display: none;
   }
 }
 

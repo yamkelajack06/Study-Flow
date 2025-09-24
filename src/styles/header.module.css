@@ -121,7 +121,7 @@ header {
   }
 }
 
-@media (max-width: 670px) {
+@media (max-width: 680px) {
   html {
     font-size: 50%;
   }

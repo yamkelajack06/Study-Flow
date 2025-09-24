@@ -17,6 +17,7 @@ const generateTimetableTimes = () => {
     timetableHours.push({
       startTime: `${displayStartHour}:00 ${startAmPm}`,
       endTime: `${displayEndHour}:00 ${endAmPm}`,
+      position: startAmPm, //This is the postition on the row
     });
   }
   return timetableHours;
@@ -54,4 +55,4 @@ const Days_Const = [
 ];
 
 export default generateTimetableTimes;
-export {Days_Const}
+export { Days_Const };
