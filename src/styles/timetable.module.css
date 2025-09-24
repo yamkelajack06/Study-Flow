@@ -103,7 +103,7 @@
   .schedule-and-controls button {
     width: calc(100% / 3);
     margin: 0;
-    height: 5rem;
+    height: 3rem;
   }
   .schedule img {
     display: none;
