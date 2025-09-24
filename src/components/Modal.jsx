@@ -1,4 +1,5 @@
 import styles from "../styles/modal.module.css";
+import AddEntry from "./AddEntryForm";
 
 const Modal = ({ onClose }) => {
   return (
@@ -10,7 +11,7 @@ const Modal = ({ onClose }) => {
         <button className={styles["close-button"]} onClick={onClose}>
           Close
         </button>
-        {/* Your modal content will go here */}
+        <AddEntry />
       </div>
     </div>
   );

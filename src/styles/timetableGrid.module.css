@@ -19,10 +19,11 @@
   gap: 1.5px;
   width: 90%;
   max-width: 1400px;
+  background-color: white;
 }
 
 .grid-item {
-  outline: 0.5px solid var(--lines-border);
+  outline: 0.2px solid var(--lines-border);
   height: auto;
   width: auto;
 }
