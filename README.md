@@ -22,9 +22,9 @@ The application currently includes the core functionality necessary for managing
 
 ### Technology Stack
 
-* **Frontend:** React (Functional Components and Hooks)
+* **Frontend:** React JS
 
-* **Styling:** Vanilla CSS (Flexbox/Grid for layout) and CSS Modules
+* **Styling:** Vanilla CSS and CSS Modules
 
 * **Data Persistence:** `localStorage` API
 
