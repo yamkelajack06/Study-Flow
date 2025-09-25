@@ -1,28 +1,49 @@
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
+import { EntryContext, FormDataContext } from "../pages/Main/HomePage";
 
-const EditEntryForm = ({ onClose }) => {
-  const [formData, setFormData] = useState({
-    subject: "",
-    day: "",
-    startTime: "",
-    endTime: "",
-    notes: "",
+const EditEntryForm = ({ onClose, currentEntry }) => {
+  // LOCAL STATE: This holds the form data while editing
+  // We initialize it with currentEntry data (the entry being edited)
+  // NOT with formData (which is for adding new entries)
+  const [formDataEdit, setFormDataEdit] = useState({
+    subject: currentEntry.subject,
+    day: currentEntry.day,
+    startTime: currentEntry.startTime,
+    endTime: currentEntry.endTime,
+    notes: currentEntry.notes,
+    id: currentEntry.id,
   });
+
+  const { updateEntries } = useContext(EntryContext);
 
   //This is the start and end time options
   const Times = generateTimetableTimes();
   //Monday to Sunday
   const Days = Days_Const;
 
+  // EFFECT: Update local state if currentEntry changes
+  // This ensures the form shows the correct data when opened
+  useEffect(() => {
+    setFormDataEdit({
+      subject: currentEntry.subject,
+      day: currentEntry.day,
+      startTime: currentEntry.startTime,
+      endTime: currentEntry.endTime,
+      notes: currentEntry.notes,
+      id: currentEntry.id,
+    });
+  }, [currentEntry]);
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+    setFormDataEdit((prevData) => ({ ...prevData, [id]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    updateEntries(formDataEdit);
     onClose();
   };
 
@@ -34,7 +55,8 @@ const EditEntryForm = ({ onClose }) => {
           <label htmlFor="subject">Subject/Task</label>
           <input
             id="subject"
-            value={formData.subject}
+            // FIXED: Use formDataEdit (local state) not formData (global context)
+            value={formDataEdit.subject}
             onChange={handleInputChange}
             required
           />
@@ -43,7 +65,8 @@ const EditEntryForm = ({ onClose }) => {
           <label htmlFor="day">Day</label>
           <select
             id="day"
-            value={formData.day}
+            // FIXED: Use formDataEdit so user sees their changes
+            value={formDataEdit.day}
             onChange={handleInputChange}
             required
           >
@@ -61,17 +84,19 @@ const EditEntryForm = ({ onClose }) => {
           <label htmlFor="notes">Notes (Optional)</label>
           <textarea
             id="notes"
-            value={formData.notes}
+            // FIXED: Use formDataEdit
+            value={formDataEdit.notes}
             onChange={handleInputChange}
             maxLength={100}
           />
         </div>
         <div className={styles["time-container"]}>
           <div className={styles["input-field"]}>
-            <label htmlFor="start-time">Start Time</label>
+            <label htmlFor="startTime">Start Time</label>
             <select
-              id="start-time"
-              value={formData.startTime}
+              // FIXED: Changed id from "start-time" to "startTime" to match state property
+              id="startTime"
+              value={formDataEdit.startTime}
               onChange={handleInputChange}
               required
             >
@@ -86,10 +111,11 @@ const EditEntryForm = ({ onClose }) => {
             </select>
           </div>
           <div className={styles["input-field"]}>
-            <label htmlFor="end-time">End Time</label>
+            <label htmlFor="endTime">End Time</label>
             <select
-              id="end-time"
-              value={formData.endTime}
+              // FIXED: Changed id from "end-time" to "endTime" to match state property
+              id="endTime"
+              value={formDataEdit.endTime}
               onChange={handleInputChange}
               required
             >

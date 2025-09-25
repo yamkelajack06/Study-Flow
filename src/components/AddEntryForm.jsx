@@ -1,20 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
-import { EntryContext } from "../pages/Main/HomePage";
+import { EntryContext, FormDataContext } from "../pages/Main/HomePage";
 
 const AddEntry = ({ onClose }) => {
-  const [formData, setFormData] = useState({
-    subject: "",
-    day: "",
-    startTime: "",
-    endTime: "",
-    notes: "",
-    id: "",
-  });
-
   const { addEntries } = useContext(EntryContext);
-
+  const { formData, setFormDataAdd } = useContext(FormDataContext);
   //This is the start and end time options
   const Times = generateTimetableTimes();
   //Monday to Sunday
@@ -22,7 +13,7 @@ const AddEntry = ({ onClose }) => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => {
+    setFormDataAdd((prevData) => {
       const updatedData = { ...prevData, [id]: value };
 
       // Generate unique ID when we have subject, day, and startTime
@@ -39,9 +30,7 @@ const AddEntry = ({ onClose }) => {
     // Ensure ID is generated before submitting
     const entryWithId = {
       ...formData,
-      id:
-        formData.id ||
-        `${formData.subject}-${formData.day}-${formData.startTime}`,
+      id: `${formData.subject}-${formData.day}-${formData.startTime}`,
     };
     addEntries(entryWithId);
     onClose();
