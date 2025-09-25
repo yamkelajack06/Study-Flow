@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
 
-const AddEntry = ({ onClose }) => {
+const EditEntryForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
     subject: "",
     day: "",
@@ -23,8 +23,6 @@ const AddEntry = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Add logic to submit form data
-    console.log("Form submitted:", formData);
     onClose();
   };
 
@@ -115,7 +113,7 @@ const AddEntry = ({ onClose }) => {
             Cancel
           </button>
           <button type="submit" className={styles["submit-btn"]}>
-            Update Entry
+            Update
           </button>
         </div>
       </section>
@@ -123,4 +121,4 @@ const AddEntry = ({ onClose }) => {
   );
 };
 
-export default AddEntry;
+export default EditEntryForm;

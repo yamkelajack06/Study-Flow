@@ -12,15 +12,22 @@ const EntryContext = createContext({
   handleCloseModal: () => {},
 });
 
+//This is for the current entry (share it)
+const CurrentEntryContext = createContext({});
+
 const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
   //This will store the timetable entries, each entry will be an object
   const [entries, setEntries] = useState([]);
 
+  //This keeps track of the current entry
+  const [currentEntry, setCurrentEntry] = useState({});
+
   //Add the entries to the array
   const addEntries = (entry) => {
     //Copy the array into a new one to prevent state mutation
+    console.log("Entry added");
     let new_entries = [...entries];
     new_entries.push(entry);
     setEntries(new_entries);
@@ -29,13 +36,16 @@ const HomePage = () => {
 
   const deleteEntries = (Entry) => {
     //Copy the entries to prevent state mutation
-    let new_entries = [...entries];
-    //Remove the entry and set the state to the new aray
-    setEntries(
-      new_entries.filter((entry) => {
-        return entry.id != Entry.id;
-      })
-    );
+    let entries_copy = [...entries];
+    //Remove the entry and set the state to the new array
+    console.log("Entries before deletion:", entries_copy);
+
+    const new_entries = entries_copy.filter((entry) => {
+      return entry.id !== Entry.id;
+    });
+
+    setEntries(new_entries);
+    console.log("Entries after deletion:", new_entries);
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -44,14 +54,25 @@ const HomePage = () => {
   const handleCloseOpenEntryModal = () => setIsEditEntryOpen(false);
 
   return (
-    <EntryContext.Provider value={{ entries, addEntries, deleteEntries,handleCloseModal,handleOpenEntryModal,handleCloseOpenEntryModal }}>
-      <Header onOpenModal={handleOpenModal} />
-      <Timetable />
-      {isModalOpen && <Modal onClose={handleCloseModal} />}
-      {isEditEntryOpen && <EditEntry onClose={handleCloseOpenEntryModal}/>}
+    <EntryContext.Provider
+      value={{
+        entries,
+        addEntries,
+        deleteEntries,
+        handleCloseModal,
+        handleOpenEntryModal,
+        handleCloseOpenEntryModal,
+      }}
+    >
+      <CurrentEntryContext.Provider value={{ currentEntry, setCurrentEntry }}>
+        <Header onOpenModal={handleOpenModal} />
+        <Timetable />
+        {isModalOpen && <Modal onClose={handleCloseModal} />}
+        {isEditEntryOpen && <EditEntry onClose={handleCloseOpenEntryModal} />}
+      </CurrentEntryContext.Provider>
     </EntryContext.Provider>
   );
 };
 
 export default HomePage;
-export { EntryContext };
+export { EntryContext, CurrentEntryContext };

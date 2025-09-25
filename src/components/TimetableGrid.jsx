@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { EntryContext } from "../pages/Main/HomePage";
+import { CurrentEntryContext, EntryContext } from "../pages/Main/HomePage";
 import style from "../styles/timetableGrid.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
 import TimetableEntry from "./TimetableEntry";
@@ -7,8 +7,22 @@ import findEntriesForCell from "../utils/findGridEntry";
 
 const TimetableGrid = () => {
   const { entries, handleOpenEntryModal } = useContext(EntryContext);
+  const { setCurrentEntry } = useContext(CurrentEntryContext);
+
   const timetableHours = generateTimetableTimes();
   const Days = Days_Const;
+
+  //Goes inside the entry and fetches the data
+  const getEntryData = (entry) => {
+    setCurrentEntry(entry);
+    return {
+      subject: entry.subject,
+      day: entry.day,
+      notes: entry.notes,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+    };
+  };
 
   return (
     <div className={style["grid-container"]}>
@@ -44,11 +58,14 @@ const TimetableGrid = () => {
                 key={`cell-${Day.abbreviation}-${timeIndex}`} // Corrected key
               >
                 {/* Map over the found entries and render them all */}
-                {entriesForCell.map((entry, entryIndex) => (
+                {entriesForCell.map((entry) => (
                   <TimetableEntry
-                    key={entryIndex}
+                    key={entry.id}
                     entry={entry}
-                    onOpenModal={handleOpenEntryModal}
+                    onOpenModal={() => {
+                      handleOpenEntryModal();
+                    }}
+                    getEntryData={getEntryData}
                   />
                 ))}
               </div>

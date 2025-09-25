@@ -10,6 +10,7 @@ const AddEntry = ({ onClose }) => {
     startTime: "",
     endTime: "",
     notes: "",
+    id: "",
   });
 
   const { addEntries } = useContext(EntryContext);
@@ -21,13 +22,28 @@ const AddEntry = ({ onClose }) => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [id]: value };
+
+      // Generate unique ID when we have subject, day, and startTime
+      if (updatedData.subject && updatedData.day && updatedData.startTime) {
+        updatedData.id = `${updatedData.subject}-${updatedData.day}-${updatedData.startTime}`;
+      }
+
+      return updatedData;
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addEntries(formData);
-    console.log("Form submitted:", formData);
+    // Ensure ID is generated before submitting
+    const entryWithId = {
+      ...formData,
+      id:
+        formData.id ||
+        `${formData.subject}-${formData.day}-${formData.startTime}`,
+    };
+    addEntries(entryWithId);
     onClose();
   };
 

@@ -1,5 +1,6 @@
 :root {
   --lightgray: #9ba4b5;
+  --red: #dc3545;
 }
 
 .add-entry-form {
@@ -52,9 +53,9 @@ h1 {
 }
 
 .input-field textarea {
-    max-width: 100%;
-    font-size: 1.6rem;
-    border-radius: 6px;
+  max-width: 100%;
+  font-size: 1.6rem;
+  border-radius: 6px;
 }
 
 .form-actions button {
@@ -80,8 +81,14 @@ h1 {
 }
 
 .form-actions {
-  width: 60%;
+  width: 80%;
   margin: 0 auto;
   display: flex;
   justify-content: space-evenly;
+}
+
+.form-actions
+.delete-button {
+  background-color: var(--red);
+  color: white;
 }
