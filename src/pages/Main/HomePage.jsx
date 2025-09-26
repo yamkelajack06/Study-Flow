@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
+import validateEntryAdd_Update from "../../utils/validate";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
@@ -28,27 +29,42 @@ const HomePage = () => {
   const [formData, setFormDataAdd] = useState(initialFormData);
 
   const addEntries = (entry) => {
-    console.log("Entry added");
-    const newEntries = [...entries, entry];
-    setEntries(newEntries);
-    localStorage.setItem("Entries", JSON.stringify(newEntries));
-    console.log(entries);
-    setFormDataAdd(initialFormData);
+    let alreadyExists = validateEntryAdd_Update(entries, entry);
+
+    if (alreadyExists) {
+      alert(`An entry already exists for ${entry.day} at ${entry.startTime}`);
+    } else {
+      const newEntries = [...entries, entry];
+      setEntries(newEntries);
+      localStorage.setItem("Entries", JSON.stringify(newEntries));
+      setFormDataAdd(initialFormData);
+    }
   };
 
   const deleteEntries = (Entry) => {
-    console.log("Entries before deletion:", entries);
-    const newEntries = entries.filter((entry) => entry.id !== Entry.id);
-    setEntries(newEntries);
-    localStorage.setItem("Entries", JSON.stringify(newEntries));
+    const confirm = window.confirm(
+      "Are you sure you want to delete this timetable entry? This action cannot be undone."
+    );
+    if (confirm) {
+      const newEntries = entries.filter((entry) => entry.id !== Entry.id);
+      setEntries(newEntries);
+      localStorage.setItem("Entries", JSON.stringify(newEntries));
+    }
   };
 
   const updateEntries = (updatedEntry) => {
-    const updatedEntries = entries.map((entry) =>
-      entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
-    );
-    setEntries(updatedEntries);
-    localStorage.setItem("Entries", JSON.stringify(updatedEntries));
+    let alreadyExists = validateEntryAdd_Update(entries, updatedEntry);
+    if (alreadyExists) {
+      alert(
+        `An entry already exists for ${updatedEntry.day} at ${updatedEntry.startTime}`
+      );
+    } else {
+      const updatedEntries = entries.map((entry) =>
+        entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
+      );
+      setEntries(updatedEntries);
+      localStorage.setItem("Entries", JSON.stringify(updatedEntries));
+    }
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
