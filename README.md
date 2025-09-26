@@ -1,12 +1,39 @@
-# React + Vite
+# Study Timetable App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The Study Timetable App is a web application designed to help students organize their weekly study sessions and tasks. Built as a Single-Page Application (SPA) using React, this app aims to provide a clean, responsive, and powerful tool for academic planning.
 
-Currently, two official plugins are available:
+### Project Purpose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The primary goal of this application is to give students a clear overview of their weekly schedule, allowing them to effectively manage their study time. The app focuses on providing core functionality for creating and managing a study schedule, with a long-term vision of becoming a comprehensive, cloud-synced platform with advanced features.
 
-## Expanding the ESLint configuration
+### Current Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The application currently includes the core functionality necessary for managing a study timetable. The following features are fully implemented:
+
+* **Weekly Timetable View:** A responsive grid displays the days of the week (Monday to Sunday) and hourly time slots (6 AM to 11 PM). Entries are rendered as blocks that span their specified duration.
+
+* **Add Entries:** Users can add new study sessions or tasks to the timetable. A modal form is used to capture all the necessary details for a new entry.
+
+* **Delete Entries:** Users can remove entries from their timetable.
+
+* **Edit Entries:** The application allows users to modify existing entries, making it easy to adjust their schedule as needed.
+
+* **Local Data Persistence:** All timetable entries are stored locally using the browser's `localStorage` API, ensuring that a user's schedule is saved and available upon their return to the app.
+
+### Technology Stack
+
+* **Frontend:** React JS
+
+* **Styling:** Vanilla CSS and CSS Modules
+
+* **Data Persistence:** `localStorage` API
+
+### Future Development
+
+The next phase of development will focus on expanding the application's capabilities, including:
+
+* Implementing a robust cloud-synced data persistence strategy using Firebase.
+
+* Integrating AI-powered features for natural language entry and document parsing.
+
+* Adding Google Calendar API integration for seamless synchronization.
