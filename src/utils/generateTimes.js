@@ -1,23 +1,27 @@
 const generateTimetableTimes = () => {
-  //Dynamically add times from 6AM to 11PM for the Times rows
   const timetableHours = [];
-  for (let hour = 6; hour <= 23; hour++) {
-    const isPM = hour >= 12;
-    const displayStartHour = isPM ? (hour === 12 ? 12 : hour - 12) : hour;
-    const displayEndHour = isPM
-      ? hour === 11
-        ? 11
-        : hour === 12
-        ? 1
-        : hour - 11
-      : hour + 1;
-    const startAmPm = isPM ? "PM" : "AM";
-    const endAmPm = isPM ? (hour === 22 ? "PM" : "AM") : "AM";
+  //Dynamically add times from 6AM to 11PM
+  const formatHour = (hour) => {
+    const ampm = hour < 12 || hour === 24 ? "AM" : "PM";
+    
+    let displayHour = hour % 12;
+    if (displayHour === 0) {
+      displayHour = 12;
+    }
+    
+    return `${displayHour}:00 ${ampm}`;
+  };
+
+  for (let startHour = 6; startHour <= 23; startHour++) {
+    const startTimeStr = formatHour(startHour);
+    
+    const endHour = (startHour + 1) % 24;
+    const endTimeStr = formatHour(endHour);
 
     timetableHours.push({
-      startTime: `${displayStartHour}:00 ${startAmPm}`,
-      endTime: `${displayEndHour}:00 ${endAmPm}`,
-      position: startAmPm, //This is the postition on the row
+      startTime: startTimeStr,
+      endTime: endTimeStr, 
+      position: startHour, 
     });
   }
   return timetableHours;
@@ -37,7 +41,7 @@ const Days_Const = [
     abbreviation: "Wed",
   },
   {
-    day: "Thurday",
+    day: "Thursday",
     abbreviation: "Thu",
   },
   {
