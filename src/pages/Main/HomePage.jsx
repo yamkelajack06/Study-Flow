@@ -12,7 +12,11 @@ const FormDataContext = createContext({});
 const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
-  const [entries, setEntries] = useState([]);
+  const [entries, setEntries] = useState(() => {
+    //Loads the entries from local storage and sets them as state
+    const savedEntries = localStorage.getItem("Entries");
+    return savedEntries ? JSON.parse(savedEntries) : [];
+  });
   const [currentEntry, setCurrentEntry] = useState({});
   const [formData, setFormDataAdd] = useState({
     subject: "",
@@ -25,21 +29,17 @@ const HomePage = () => {
 
   const addEntries = (entry) => {
     console.log("Entry added");
-    let new_entries = [...entries];
-    new_entries.push(entry);
-    setEntries(new_entries);
+    const newEntries = [...entries, entry];
+    setEntries(newEntries);
+    localStorage.setItem("Entries", JSON.stringify(newEntries));
     console.log(entries);
   };
 
   const deleteEntries = (Entry) => {
-    let entries_copy = [...entries];
-    console.log("Entries before deletion:", entries_copy);
-
-    const new_entries = entries_copy.filter((entry) => {
-      return entry.id !== Entry.id;
-    });
-
-    setEntries(new_entries);
+    console.log("Entries before deletion:", entries);
+    const newEntries = entries.filter((entry) => entry.id !== Entry.id);
+    setEntries(newEntries);
+    localStorage.setItem("Entries", JSON.stringify(newEntries));
   };
 
   const updateEntries = (updatedEntry) => {
@@ -47,6 +47,7 @@ const HomePage = () => {
       entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
     );
     setEntries(updatedEntries);
+    localStorage.setItem("Entries", JSON.stringify(updatedEntries));
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
