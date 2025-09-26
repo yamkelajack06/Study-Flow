@@ -4,28 +4,28 @@ import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
 
-//Context
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
 const FormDataContext = createContext({});
+
+const initialFormData = {
+  subject: "",
+  day: "",
+  startTime: "",
+  endTime: "",
+  notes: "",
+  id: "",
+};
 
 const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
   const [entries, setEntries] = useState(() => {
-    //Loads the entries from local storage and sets them as state
     const savedEntries = localStorage.getItem("Entries");
     return savedEntries ? JSON.parse(savedEntries) : [];
   });
   const [currentEntry, setCurrentEntry] = useState({});
-  const [formData, setFormDataAdd] = useState({
-    subject: "",
-    day: "",
-    startTime: "",
-    endTime: "",
-    notes: "",
-    id: "",
-  });
+  const [formData, setFormDataAdd] = useState(initialFormData);
 
   const addEntries = (entry) => {
     console.log("Entry added");
@@ -33,6 +33,7 @@ const HomePage = () => {
     setEntries(newEntries);
     localStorage.setItem("Entries", JSON.stringify(newEntries));
     console.log(entries);
+    setFormDataAdd(initialFormData);
   };
 
   const deleteEntries = (Entry) => {
