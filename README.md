@@ -1,6 +1,6 @@
-# Study Timetable App
+# Study Flow
 
-The Study Timetable App is a web application designed to help students organize their weekly study sessions and tasks. Built as a Single-Page Application (SPA) using React, this app aims to provide a clean, responsive, and powerful tool for academic planning.
+The Study Flow is a web application designed to help students organize their weekly study sessions and tasks. Built as a Single-Page Application (SPA) using React, this app aims to provide a clean, responsive, and powerful tool for academic planning.
 
 ### Project Purpose
 
