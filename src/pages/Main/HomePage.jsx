@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
-import validateEntryAdd, { validateEntryUpdate } from "../../utils/validate";
+import validateEntryAdd, { validateEntryUpdate } from "../../utils/validateEntry";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});

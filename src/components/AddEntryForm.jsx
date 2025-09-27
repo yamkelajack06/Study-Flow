@@ -2,6 +2,7 @@ import { useContext } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
 import { EntryContext, FormDataContext } from "../pages/Main/HomePage";
+import { validateTimeOrder } from "../utils/validateTime";
 
 const AddEntry = ({ onClose }) => {
   const { addEntries } = useContext(EntryContext);
@@ -27,7 +28,13 @@ const AddEntry = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Ensure ID is generated before submitting
+
+    const validation = validateTimeOrder(formData.startTime, formData.endTime);
+    if (!validation.isValid) {
+      alert(validation.message);
+      return;
+    }
+
     const entryWithId = {
       ...formData,
       id: `${formData.subject}-${formData.day}-${formData.startTime}`,

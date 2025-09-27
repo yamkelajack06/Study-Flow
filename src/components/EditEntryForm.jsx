@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
 import { EntryContext, FormDataContext } from "../pages/Main/HomePage";
+import { validateTimeOrder } from "../utils/validateTime";
 
 const EditEntryForm = ({ onClose, currentEntry }) => {
   // LOCAL STATE: This holds the form data while editing
@@ -40,9 +41,18 @@ const EditEntryForm = ({ onClose, currentEntry }) => {
     const { id, value } = e.target;
     setFormDataEdit((prevData) => ({ ...prevData, [id]: value }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const validation = validateTimeOrder(
+      formDataEdit.startTime,
+      formDataEdit.endTime
+    );
+    if (!validation.isValid) {
+      alert(validation.message);
+      return;
+    }
+
     updateEntries(formDataEdit);
     onClose();
   };
