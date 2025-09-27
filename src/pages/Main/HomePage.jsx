@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
-import validateEntryAdd_Update from "../../utils/validate";
+import validateEntryAdd, { validateEntryUpdate } from "../../utils/validate";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
@@ -29,7 +29,7 @@ const HomePage = () => {
   const [formData, setFormDataAdd] = useState(initialFormData);
 
   const addEntries = (entry) => {
-    let alreadyExists = validateEntryAdd_Update(entries, entry);
+    let alreadyExists = validateEntryAdd(entries, entry);
 
     if (alreadyExists) {
       alert(`An entry already exists for ${entry.day} at ${entry.startTime}`);
@@ -53,7 +53,7 @@ const HomePage = () => {
   };
 
   const updateEntries = (updatedEntry) => {
-    let alreadyExists = validateEntryAdd_Update(entries, updatedEntry);
+    let alreadyExists = validateEntryUpdate(entries, updatedEntry);
     if (alreadyExists) {
       alert(
         `An entry already exists for ${updatedEntry.day} at ${updatedEntry.startTime}`
