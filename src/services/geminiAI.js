@@ -121,13 +121,12 @@ function parseResponse(text) {
       return json;
     }
   } catch (error) {
-    console.error(error);
     return null;
   }
   return null;
 }
 
-async function main() {
+async function GeminiAI() {
   let keepPrompting = true;
   const history = [];
   let finalAction = null;
@@ -175,14 +174,14 @@ async function main() {
         console.log(JSON.stringify(finalAction, null, 2));
 
         history.push({
-          role: "gemini",
+          role: "model",
           parts: [{ text: aiResponseText }],
         });
 
         keepPrompting = false;
       } else {
         history.push({
-          role: "gemini",
+          role: "model",
           parts: [{ text: aiResponseText }],
         });
 
@@ -201,4 +200,4 @@ async function main() {
   return finalAction;
 }
 
-main();
+export default GeminiAI;

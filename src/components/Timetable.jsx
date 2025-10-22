@@ -3,6 +3,7 @@ import TimetableGrid from "./TimetableGrid";
 import calendarIcon from "../assets/calendar-blue.svg";
 import { useState } from "react";
 import TimetableEntry from "./TimetableEntry";
+import AIAssistant from "./AIAssistant";
 
 const Timetable = () => {
   return (
@@ -17,6 +18,7 @@ const Timetable = () => {
         </div>
       </div>
       <TimetableGrid />
+      <AIAssistant />
     </div>
   );
 };
