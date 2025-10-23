@@ -102,13 +102,58 @@ Additional Notes
 
 This is the current state:
 `;
+let hourlyCallCount = 0;
+let dailyCallCount = 0;
+let lastHourResetTime = Date.now();
+let lastDayResetTime = getStartOfDay().getTime(); // Initialize to the start of the current day
+
+const HOURLY_LIMIT = 50;
+const DAILY_LIMIT = 150;
+const ONE_HOUR = 60 * 60 * 1000;
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
+function getStartOfDay() {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return now;
+}
 
 async function GeminiAI(userChatHistory, state) {
+  const currentTime = Date.now();
+
+  if (currentTime - lastDayResetTime >= ONE_DAY) {
+    dailyCallCount = 0;
+    lastDayResetTime = getStartOfDay().getTime();
+  }
+
+  if (currentTime - lastHourResetTime >= ONE_HOUR) {
+    hourlyCallCount = 0;
+    lastHourResetTime = currentTime;
+  }
+
+  if (dailyCallCount >= DAILY_LIMIT) {
+    return {
+      error: true,
+      message: `You've hit your daily limit for using this tool. You've reached the maximum of **${DAILY_LIMIT} requests per day**. Please try again tomorrow.`,
+    };
+  }
+
+  if (hourlyCallCount >= HOURLY_LIMIT) {
+    return {
+      error: true,
+      message: `You've hit a temporary usage limit. We can only handle **${HOURLY_LIMIT} requests per hour** to keep things running smoothly for everyone. Please wait a little while and try again later.`,
+    };
+  }
+
+  hourlyCallCount++;
+  dailyCallCount++;
+
   const stringState = formatState(state);
-  const AiInstructions = instructions + stringState; //concatenate the two strings
+  const AiInstructions = instructions + stringState;
+
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-lite",
       contents: userChatHistory,
       config: {
         systemInstruction: AiInstructions,
@@ -124,7 +169,7 @@ async function GeminiAI(userChatHistory, state) {
     return {
       error: true,
       message:
-        "Oops an error has occured. Please retype your message and try again.",
+        "Oops an error has occurred. Please retype your message and try again.",
     };
   }
 }
