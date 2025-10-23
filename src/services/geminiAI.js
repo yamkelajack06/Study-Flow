@@ -108,6 +108,7 @@ Response Rules
 4. When suggesting study times, reference specific free slots in the current timetable.
 5. If the request is completely outside your scope, respond using the out-of-scope message above.
 6. Maintain clarity and precision — never fabricate, assume, or estimate user data.
+7. When a user asks to update an entry, if the update includes changing the name of the subject, the ID should change as well as per rules of naming our ID
 
 Context Awareness
 
@@ -117,7 +118,6 @@ Current timetable entries will be provided with each request so you have full co
 - Provide personalized and context-aware scheduling advice
 - Answer timetable-related questions accurately
 `;
-
 
 function cleanAIResponse(response) {
   if (!response) return null;
@@ -159,7 +159,6 @@ function parseResponse(text) {
 }
 
 async function GeminiAI(userChatHistory) {
- 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -175,7 +174,11 @@ async function GeminiAI(userChatHistory) {
     return actionObject || { error: true, message: aiResponseText };
   } catch (err) {
     console.error("An error occurred during API call:", err);
-    return { error: true, message: "API call failed" };
+    return {
+      error: true,
+      message:
+        "Oops an error has occured. Please retype your message and try again.",
+    };
   }
 }
 
