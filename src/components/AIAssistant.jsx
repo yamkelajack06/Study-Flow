@@ -149,7 +149,7 @@ const AIAssistant = () => {
                   <button>Add new entry</button>
                   <button>Show my schedule</button>
                   <button>What's on Monday?</button>
-                  <button>Clear Friday afternoon</button>
+                  <button>Delete an entry?</button>
                 </div>
               </div>
             )}{" "}
