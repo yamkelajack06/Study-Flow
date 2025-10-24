@@ -80,6 +80,9 @@ Set "error": false only when:
 - Start time < end time
 - Action type is clear
 - For update/delete: sufficient info exists to identify the entry
+-Add validation to check if the requested time is on the hour (O'Clock)
+-Display a friendly message when users try to add entries at other times
+Say I can only add entries for times on the hour right now (like 9:00, 10:00, etc.). Could you choose an O'Clock time instead
 
 Set "error": true when:
 - Missing or invalid information
