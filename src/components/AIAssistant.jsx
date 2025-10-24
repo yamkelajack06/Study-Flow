@@ -11,7 +11,7 @@
  * - Chat history and conversation management
  */
 
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, useLayoutEffect } from "react";
 import { Sparkles } from "lucide-react";
 import styles from "../styles/ai.module.css";
 import timetableStyles from "../styles/timetable.module.css";
@@ -25,7 +25,16 @@ const AIAssistant = () => {
   const [isChatting, setIsChatting] = useState(false); //For handling the chat window UI;
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null); //For clearing the textarea
-  const { entries, addEntries, deleteEntries, updateEntries } = useContext(EntryContext);
+  const chatContainerRef = useRef(null); // for auto scroll to latest message
+  const { entries, addEntries, deleteEntries, updateEntries } =
+    useContext(EntryContext);
+
+  useLayoutEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [userChatHistory]); // Trigger when messages change
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);
@@ -134,7 +143,7 @@ const AIAssistant = () => {
           </div>
 
           {/* Messages Area */}
-          <div className={styles["chat-messages"]}>
+          <div className={styles["chat-messages"]} ref={chatContainerRef}>
             {!isChatting && (
               <div className={styles["empty-state"]}>
                 <span className={styles["sparkle-large"]}>✨</span>
