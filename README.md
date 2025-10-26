@@ -20,6 +20,8 @@ The application currently includes the core functionality necessary for managing
 
 * **Local Data Persistence:** All timetable entries are stored locally using the browser's `localStorage` API, ensuring that a user's schedule is saved and available upon their return to the app.
 
+* **AI Assistant:** A conversational chat interface powered by Google Gemini AI that processes natural language commands to add, update, and delete timetable entries. The assistant validates entries against the current schedule to prevent conflicts and overlaps, provides scheduling advice based on available time slots, answers questions about the user's timetable and generates a personalized study timetable for the user based on the free slots on the timetable. Currently supports single-entry operations only, requires on-the-hour time slots.
+
 ### Technology Stack
 
 * **Frontend:** React JS
