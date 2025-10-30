@@ -17,6 +17,8 @@ import styles from "../styles/ai.module.css";
 import timetableStyles from "../styles/timetable.module.css";
 import GeminiAI from "../services/geminiAI";
 import { EntryContext } from "../pages/Main/HomePage";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from 'rehype-highlight';
 
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -206,7 +208,9 @@ const ChatMessages = ({ messages }) => {
         >
           <strong>{role === "model" ? "AI" : "User"}: </strong>
           {parts.map((part, i) => (
-            <span key={i}>{part.text}</span>
+            <ReactMarkdown key = {i} rehypePlugins={[rehypeHighlight]}>
+              {part.text}
+            </ReactMarkdown>
           ))}
         </div>
       ))}
