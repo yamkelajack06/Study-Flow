@@ -42,15 +42,6 @@ const AIAssistant = () => {
     setUserInput(e.target.value);
   };
 
-  function isJSON(str) {
-    try {
-      const parsed = JSON.parse(str);
-      return typeof parsed === "object" && parsed !== null;
-    } catch (e) {
-      return false;
-    }
-  }
-
   const handleSuccess = (AIResponse) => {
     let message;
     switch (AIResponse.action) {

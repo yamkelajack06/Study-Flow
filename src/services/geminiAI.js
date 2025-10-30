@@ -82,7 +82,7 @@ Set "error": false only when:
 - For update/delete: sufficient info exists to identify the entry
 -Add validation to check if the requested time is on the hour (O'Clock)
 -Display a friendly message when users try to add entries at other times
-Say I can only add entries for times on the hour right now (like 9:00, 10:00, etc.). Could you choose an O'Clock time instead
+If a user enters time that is not exactly on the clock eg. (9:15am or 12:30pm), say I can only add entries for times on the hour right now (like 9:00, 10:00, etc.). Could you choose an O'Clock time instead. Say this if and only if the time entered by the user is not exactly on the clock, if it is continue doing the task
 
 Set "error": true when:
 - Missing or invalid information
