@@ -18,7 +18,7 @@ import timetableStyles from "../styles/timetable.module.css";
 import GeminiAI from "../services/geminiAI";
 import { EntryContext } from "../pages/Main/HomePage";
 import ReactMarkdown from "react-markdown";
-import rehypeHighlight from 'rehype-highlight';
+import rehypeHighlight from "rehype-highlight";
 
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,19 +44,35 @@ const AIAssistant = () => {
 
   const handleSuccess = (AIResponse) => {
     let message;
+    let success;
     switch (AIResponse.action) {
       case "add":
-        message = `${AIResponse.subject} has been added successfully`;
-        addEntries(AIResponse);
+        success = addEntries(AIResponse);
+        if (success) {
+          message = `${AIResponse.subject} has been added successfully`;
+        } else {
+          message = `Failed to add ${AIResponse.subject}. There maybe a time conflict`;
+        }
         return message;
       case "delete":
-        message = `${AIResponse.subject} has been deleted successfully`;
-        deleteEntries(AIResponse);
+        success = deleteEntries(AIResponse);
+        if (success) {
+          message = `${AIResponse.subject} has been deleted successfully`;
+        } else {
+          message = `Deletion was not successful`;
+        }
+
         return message;
       case "update":
-        message = `Entry has been updated successfully`;
-        updateEntries(AIResponse);
+        success = updateEntries(AIResponse);
+        if (success) {
+          message = `Entry has been updated successfully`;
+        } else {
+          message = `Failed to update entry. There may be a time conflict with the new schedule.`;
+        }
         return message;
+      default:
+        return "Action completed";
     }
   };
   const handleSubmit = async (e) => {
@@ -199,7 +215,7 @@ const ChatMessages = ({ messages }) => {
         >
           <strong>{role === "model" ? "AI" : "User"}: </strong>
           {parts.map((part, i) => (
-            <ReactMarkdown key = {i} rehypePlugins={[rehypeHighlight]}>
+            <ReactMarkdown key={i} rehypePlugins={[rehypeHighlight]}>
               {part.text}
             </ReactMarkdown>
           ))}

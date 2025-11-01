@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
-import validateEntryAdd, { validateEntryUpdate } from "../../utils/validateEntry";
+import { validateEntryWithConflict } from "../../utils/confilctDetector";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
@@ -29,15 +29,17 @@ const HomePage = () => {
   const [formData, setFormDataAdd] = useState(initialFormData);
 
   const addEntries = (entry) => {
-    let alreadyExists = validateEntryAdd(entries, entry);
+    const validation = validateEntryWithConflict(entries, entry, false);
 
-    if (alreadyExists) {
-      alert(`An entry already exists for ${entry.day} at ${entry.startTime}`);
+    if (!validation.isValid) {
+      alert(validation.message);
+      return false;
     } else {
       const newEntries = [...entries, entry];
       setEntries(newEntries);
       localStorage.setItem("Entries", JSON.stringify(newEntries));
       setFormDataAdd(initialFormData);
+      return true;
     }
   };
 
@@ -49,21 +51,37 @@ const HomePage = () => {
       const newEntries = entries.filter((entry) => entry.id !== Entry.id);
       setEntries(newEntries);
       localStorage.setItem("Entries", JSON.stringify(newEntries));
+      return true;
     }
+    return false;
   };
 
   const updateEntries = (updatedEntry) => {
-    let alreadyExists = validateEntryUpdate(entries, updatedEntry);
-    if (alreadyExists) {
-      alert(
-        `An entry already exists for ${updatedEntry.day} at ${updatedEntry.startTime}`
-      );
+    //Find the entry to update using id from A
+    const oldId = updatedEntry.oldId || updatedEntry.id;
+
+    // Check if entry exists
+    const existingEntry = entries.find((entry) => entry.id === oldId);
+    if (!existingEntry) {
+      alert(`Could not find the entry to update. Please try again.`);
+      return false;
+    }
+
+    const validation = validateEntryWithConflict(entries, updatedEntry, true);
+
+    if (!validation.isValid) {
+      alert(validation.message);
+      return false;
     } else {
+
+      const newId = `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
+
       const updatedEntries = entries.map((entry) =>
-        entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
+        entry.id === oldId ? { ...updatedEntry, id: newId } : entry
       );
       setEntries(updatedEntries);
       localStorage.setItem("Entries", JSON.stringify(updatedEntries));
+      return true;
     }
   };
 
