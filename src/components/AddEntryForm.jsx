@@ -39,8 +39,10 @@ const AddEntry = ({ onClose }) => {
       ...formData,
       id: `${formData.subject}-${formData.day}-${formData.startTime}`,
     };
-    addEntries(entryWithId);
-    onClose();
+    const success = addEntries(entryWithId);
+    if (success) {
+      onClose(); // only close on successful entry
+    }
   };
 
   return (

@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
-import validateEntryAdd, { validateEntryUpdate } from "../../utils/validateEntry";
+import { validateEntryWithConflict } from "../../utils/confilctDetector";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
@@ -29,16 +29,53 @@ const HomePage = () => {
   const [formData, setFormDataAdd] = useState(initialFormData);
 
   const addEntries = (entry) => {
-    let alreadyExists = validateEntryAdd(entries, entry);
+    const validation = validateEntryWithConflict(entries, entry, false);
 
-    if (alreadyExists) {
-      alert(`An entry already exists for ${entry.day} at ${entry.startTime}`);
+    if (!validation.isValid) {
+      alert(validation.message);
+      return false;
     } else {
       const newEntries = [...entries, entry];
       setEntries(newEntries);
       localStorage.setItem("Entries", JSON.stringify(newEntries));
       setFormDataAdd(initialFormData);
+      return true;
     }
+  };
+
+  const addMultipleEntries = (entriesArray) => {
+    const results = {
+      successful: [],
+      failed: [],
+    };
+
+    entriesArray.forEach((entry) => {
+      //Unique ID for each entry added dynamically by the AI
+      const entryWithId = {
+        ...entry,
+        id: `${entry.subject}-${entry.day}-${entry.startTime}`,
+      };
+
+      const validation = validateEntryWithConflict(entries, entryWithId, false);
+
+      if (!validation.isValid) {
+        results.failed.push({
+          entryWithId,
+          reason: validation.message,
+        });
+      } else {
+        results.successful.push(entryWithId);
+      }
+    });
+
+    // Only add successful entries
+    if (results.successful.length > 0) {
+      const newEntries = [...entries, ...results.successful];
+      setEntries(newEntries);
+      localStorage.setItem("Entries", JSON.stringify(newEntries));
+    }
+
+    return results;
   };
 
   const deleteEntries = (Entry) => {
@@ -49,21 +86,51 @@ const HomePage = () => {
       const newEntries = entries.filter((entry) => entry.id !== Entry.id);
       setEntries(newEntries);
       localStorage.setItem("Entries", JSON.stringify(newEntries));
+      return true;
     }
+    return false;
+  };
+
+  const deleteMultipleEntries = (entriesArray) => {
+    const idsToDelete = entriesArray.map((entry) => entry.id);
+    const newEntries = entries.filter(
+      (entry) => !idsToDelete.includes(entry.id)
+    );
+
+    setEntries(newEntries);
+    localStorage.setItem("Entries", JSON.stringify(newEntries));
+
+    return {
+      deletedCount: entries.length - newEntries.length,
+      requestedCount: idsToDelete.length,
+    };
   };
 
   const updateEntries = (updatedEntry) => {
-    let alreadyExists = validateEntryUpdate(entries, updatedEntry);
-    if (alreadyExists) {
-      alert(
-        `An entry already exists for ${updatedEntry.day} at ${updatedEntry.startTime}`
-      );
+    //Find the entry to update using id from A
+    const oldId = updatedEntry.oldId || updatedEntry.id;
+
+    // Check if entry exists
+    const existingEntry = entries.find((entry) => entry.id === oldId);
+    if (!existingEntry) {
+      alert(`Could not find the entry to update. Please try again.`);
+      return false;
+    }
+
+    const validation = validateEntryWithConflict(entries, updatedEntry, true);
+
+    if (!validation.isValid) {
+      alert(validation.message);
+      return false;
     } else {
+      const newId = `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
+
       const updatedEntries = entries.map((entry) =>
-        entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
+        entry.id === oldId ? { ...updatedEntry, id: newId } : entry
       );
       setEntries(updatedEntries);
       localStorage.setItem("Entries", JSON.stringify(updatedEntries));
+      return true;
     }
   };
 
@@ -82,6 +149,8 @@ const HomePage = () => {
         handleOpenEntryModal,
         handleCloseOpenEntryModal,
         updateEntries,
+        addMultipleEntries,
+        deleteMultipleEntries,
       }}
     >
       <CurrentEntryContext.Provider value={{ currentEntry, setCurrentEntry }}>

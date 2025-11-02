@@ -18,7 +18,7 @@ import timetableStyles from "../styles/timetable.module.css";
 import GeminiAI from "../services/geminiAI";
 import { EntryContext } from "../pages/Main/HomePage";
 import ReactMarkdown from "react-markdown";
-import rehypeHighlight from 'rehype-highlight';
+import rehypeHighlight from "rehype-highlight";
 
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,8 +28,14 @@ const AIAssistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null); //For clearing the textarea
   const chatContainerRef = useRef(null); // for auto scroll to latest message
-  const { entries, addEntries, deleteEntries, updateEntries } =
-    useContext(EntryContext);
+  const {
+    entries,
+    addEntries,
+    deleteEntries,
+    updateEntries,
+    addMultipleEntries,
+    deleteMultipleEntries,
+  } = useContext(EntryContext);
 
   useLayoutEffect(() => {
     if (chatContainerRef.current) {
@@ -44,21 +50,84 @@ const AIAssistant = () => {
 
   const handleSuccess = (AIResponse) => {
     let message;
+    let success;
+
     switch (AIResponse.action) {
-      case "add":
-        message = `${AIResponse.subject} has been added successfully`;
-        addEntries(AIResponse);
+      case "add": {
+        success = addEntries(AIResponse);
+        if (success) {
+          message = `${AIResponse.subject} has been added successfully to ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+        } else {
+          message = `Failed to add ${AIResponse.subject}. There may be a time conflict.`;
+        }
         return message;
-      case "delete":
-        message = `${AIResponse.subject} has been deleted successfully`;
-        deleteEntries(AIResponse);
+      }
+
+      case "add_multiple": {
+        const addResults = addMultipleEntries(AIResponse.entries);
+
+        if (addResults.successful.length === 0) {
+          message = `Failed to add any entries. All had conflicts:\n\n`;
+          addResults.failed.forEach((fail) => {
+            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+          });
+        } else if (addResults.failed.length === 0) {
+          message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
+          addResults.successful.forEach((entry) => {
+            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+          });
+        } else {
+          message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
+          message += `**Successful:**\n`;
+          addResults.successful.forEach((entry) => {
+            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+          });
+          message += `\n**Failed:**\n`;
+          addResults.failed.forEach((fail) => {
+            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+          });
+        }
         return message;
-      case "update":
-        message = `Entry has been updated successfully`;
-        updateEntries(AIResponse);
+      }
+
+      case "delete": {
+        success = deleteEntries(AIResponse);
+        if (success) {
+          message = `${AIResponse.subject} has been deleted successfully.`;
+        } else {
+          message = `Deletion was cancelled.`;
+        }
         return message;
+      }
+
+      case "delete_multiple": {
+        const deleteResults = deleteMultipleEntries(AIResponse.entries);
+
+        if (deleteResults.deletedCount === deleteResults.requestedCount) {
+          message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
+        } else if (deleteResults.deletedCount === 0) {
+          message = `No entries were deleted. Could not find the specified entries.`;
+        } else {
+          message = `Deleted ${deleteResults.deletedCount} of ${deleteResults.requestedCount} requested entries.`;
+        }
+        return message;
+      }
+
+      case "update": {
+        success = updateEntries(AIResponse);
+        if (success) {
+          message = `Entry has been updated successfully to: ${AIResponse.subject} on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+        } else {
+          message = `Failed to update entry. There may be a time conflict with the new schedule.`;
+        }
+        return message;
+      }
+
+      default:
+        return "Action completed.";
     }
   };
+
   const handleSubmit = async (e) => {
     setIsChatting(true);
     setIsLoading(true);
@@ -199,7 +268,7 @@ const ChatMessages = ({ messages }) => {
         >
           <strong>{role === "model" ? "AI" : "User"}: </strong>
           {parts.map((part, i) => (
-            <ReactMarkdown key = {i} rehypePlugins={[rehypeHighlight]}>
+            <ReactMarkdown key={i} rehypePlugins={[rehypeHighlight]}>
               {part.text}
             </ReactMarkdown>
           ))}

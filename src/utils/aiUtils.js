@@ -56,7 +56,7 @@ function parseResponse(text) {
   if (
     cleaned &&
     typeof cleaned === "object" &&
-    ["add", "update", "delete", "view"].includes(cleaned.action)
+    ["add", "update", "delete", "view", "delete_multiple", "add_multiple"].includes(cleaned.action)
   ) {
     return cleaned;
   }
