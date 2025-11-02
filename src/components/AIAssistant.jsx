@@ -28,8 +28,14 @@ const AIAssistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null); //For clearing the textarea
   const chatContainerRef = useRef(null); // for auto scroll to latest message
-  const { entries, addEntries, deleteEntries, updateEntries } =
-    useContext(EntryContext);
+  const {
+    entries,
+    addEntries,
+    deleteEntries,
+    updateEntries,
+    addMultipleEntries,
+    deleteMultipleEntries,
+  } = useContext(EntryContext);
 
   useLayoutEffect(() => {
     if (chatContainerRef.current) {
@@ -45,36 +51,83 @@ const AIAssistant = () => {
   const handleSuccess = (AIResponse) => {
     let message;
     let success;
+
     switch (AIResponse.action) {
-      case "add":
+      case "add": {
         success = addEntries(AIResponse);
         if (success) {
-          message = `${AIResponse.subject} has been added successfully`;
+          message = `${AIResponse.subject} has been added successfully to ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
         } else {
-          message = `Failed to add ${AIResponse.subject}. There maybe a time conflict`;
+          message = `Failed to add ${AIResponse.subject}. There may be a time conflict.`;
         }
         return message;
-      case "delete":
+      }
+
+      case "add_multiple": {
+        const addResults = addMultipleEntries(AIResponse.entries);
+
+        if (addResults.successful.length === 0) {
+          message = `Failed to add any entries. All had conflicts:\n\n`;
+          addResults.failed.forEach((fail) => {
+            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+          });
+        } else if (addResults.failed.length === 0) {
+          message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
+          addResults.successful.forEach((entry) => {
+            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+          });
+        } else {
+          message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
+          message += `**Successful:**\n`;
+          addResults.successful.forEach((entry) => {
+            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+          });
+          message += `\n**Failed:**\n`;
+          addResults.failed.forEach((fail) => {
+            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+          });
+        }
+        return message;
+      }
+
+      case "delete": {
         success = deleteEntries(AIResponse);
         if (success) {
-          message = `${AIResponse.subject} has been deleted successfully`;
+          message = `${AIResponse.subject} has been deleted successfully.`;
         } else {
-          message = `Deletion was not successful`;
+          message = `Deletion was cancelled.`;
         }
-
         return message;
-      case "update":
+      }
+
+      case "delete_multiple": {
+        const deleteResults = deleteMultipleEntries(AIResponse.entries);
+
+        if (deleteResults.deletedCount === deleteResults.requestedCount) {
+          message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
+        } else if (deleteResults.deletedCount === 0) {
+          message = `No entries were deleted. Could not find the specified entries.`;
+        } else {
+          message = `Deleted ${deleteResults.deletedCount} of ${deleteResults.requestedCount} requested entries.`;
+        }
+        return message;
+      }
+
+      case "update": {
         success = updateEntries(AIResponse);
         if (success) {
-          message = `Entry has been updated successfully`;
+          message = `Entry has been updated successfully to: ${AIResponse.subject} on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
         } else {
           message = `Failed to update entry. There may be a time conflict with the new schedule.`;
         }
         return message;
+      }
+
       default:
-        return "Action completed";
+        return "Action completed.";
     }
   };
+
   const handleSubmit = async (e) => {
     setIsChatting(true);
     setIsLoading(true);

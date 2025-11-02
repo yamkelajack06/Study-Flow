@@ -43,6 +43,41 @@ const HomePage = () => {
     }
   };
 
+  const addMultipleEntries = (entriesArray) => {
+    const results = {
+      successful: [],
+      failed: [],
+    };
+
+    entriesArray.forEach((entry) => {
+      //Unique ID for each entry added dynamically by the AI
+      const entryWithId = {
+        ...entry,
+        id: `${entry.subject}-${entry.day}-${entry.startTime}`,
+      };
+
+      const validation = validateEntryWithConflict(entries, entryWithId, false);
+
+      if (!validation.isValid) {
+        results.failed.push({
+          entryWithId,
+          reason: validation.message,
+        });
+      } else {
+        results.successful.push(entryWithId);
+      }
+    });
+
+    // Only add successful entries
+    if (results.successful.length > 0) {
+      const newEntries = [...entries, ...results.successful];
+      setEntries(newEntries);
+      localStorage.setItem("Entries", JSON.stringify(newEntries));
+    }
+
+    return results;
+  };
+
   const deleteEntries = (Entry) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this timetable entry? This action cannot be undone."
@@ -54,6 +89,21 @@ const HomePage = () => {
       return true;
     }
     return false;
+  };
+
+  const deleteMultipleEntries = (entriesArray) => {
+    const idsToDelete = entriesArray.map((entry) => entry.id);
+    const newEntries = entries.filter(
+      (entry) => !idsToDelete.includes(entry.id)
+    );
+
+    setEntries(newEntries);
+    localStorage.setItem("Entries", JSON.stringify(newEntries));
+
+    return {
+      deletedCount: entries.length - newEntries.length,
+      requestedCount: idsToDelete.length,
+    };
   };
 
   const updateEntries = (updatedEntry) => {
@@ -73,7 +123,6 @@ const HomePage = () => {
       alert(validation.message);
       return false;
     } else {
-
       const newId = `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
 
       const updatedEntries = entries.map((entry) =>
@@ -100,6 +149,8 @@ const HomePage = () => {
         handleOpenEntryModal,
         handleCloseOpenEntryModal,
         updateEntries,
+        addMultipleEntries,
+        deleteMultipleEntries,
       }}
     >
       <CurrentEntryContext.Provider value={{ currentEntry, setCurrentEntry }}>
