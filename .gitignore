@@ -23,6 +23,7 @@ out
 
 # Local files
 *.local
+Notes
 
 # Editor directories and files
 .vscode/*
