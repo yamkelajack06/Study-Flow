@@ -36,9 +36,7 @@ The application currently includes the core functionality necessary for managing
 The next phase of development will focus on expanding the application's capabilities, including:
 
 * Implementing a robust cloud-synced data persistence strategy using Firebase.
-
-* Integrating AI-powered features for natural language entry and document parsing.
-
+  
 * Adding Google Calendar API integration for seamless synchronization.
 
 Link to live APP: https://study-flow-beta.vercel.app/
