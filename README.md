@@ -20,7 +20,7 @@ The application currently includes the core functionality necessary for managing
 
 * **Local Data Persistence:** All timetable entries are stored locally using the browser's `localStorage` API, ensuring that a user's schedule is saved and available upon their return to the app.
 
-* **AI Assistant:** A conversational chat interface powered by Google Gemini AI that processes natural language commands to add, update, and delete timetable entries. The assistant validates entries against the current schedule to prevent conflicts and overlaps, provides scheduling advice based on available time slots, answers questions about the user's timetable and generates a personalized study timetable for the user based on the free slots on the timetable. Currently supports single-entry operations only, requires on-the-hour time slots.
+* **AI Assistant:** A conversational chat interface powered by Google Gemini API that processes natural language commands to manage timetable entries. The AI assistant understands casual language, provides a nice conversational way of planning your schedule and can perform bulk operations such as adding multiple entries at once or clearing entire days or time periods. It validates all entries against the current schedule to prevent conflicts and overlaps, asks clarifying questions when information is incomplete or ambiguous, and provides intelligent scheduling advice based on available time slots. The AI can answer questions about the user's schedule, help plan study sessions around existing commitments, and generate complete personalized timetables for students by intelligently distributing their subjects across available time slots—ensuring balanced study sessions and adequate coverage of all topics without automating the entire process, but rather working collaboratively with the user to create an optimal schedule. Currently supports adding and deleting entries (both single and multiple).
 
 ### Technology Stack
 
@@ -29,15 +29,14 @@ The application currently includes the core functionality necessary for managing
 * **Styling:** Vanilla CSS and CSS Modules
 
 * **Data Persistence:** `localStorage` API
+* **AI Integration:** Google Gemini API (@google/genai SDK)
 
 ### Future Development
 
 The next phase of development will focus on expanding the application's capabilities, including:
 
 * Implementing a robust cloud-synced data persistence strategy using Firebase.
-
-* Integrating AI-powered features for natural language entry and document parsing.
-
+  
 * Adding Google Calendar API integration for seamless synchronization.
 
 Link to live APP: https://study-flow-beta.vercel.app/
