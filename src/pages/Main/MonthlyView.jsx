@@ -3,7 +3,7 @@ import { CurrentEntryContext, EntryContext } from "./HomePage";
 import styles from "../../styles/monthlyview.module.css";
 
 const MonthlyView = ({ currentDate }) => {
-  const { entries, handleOpenEntryModal } = useContext(EntryContext);
+  const { getEntriesForDate, handleOpenEntryModal } = useContext(EntryContext);
   const { setCurrentEntry } = useContext(CurrentEntryContext);
 
   // Get month info
@@ -30,8 +30,8 @@ const MonthlyView = ({ currentDate }) => {
     const date = new Date(year, month, day);
     const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
     
-    // Find entries for this day
-    const dayEntries = entries.filter((entry) => entry.day === dayName);
+    // Get entries for this specific date (both one-time and recurring)
+    const dayEntries = getEntriesForDate(date);
 
     days.push({
       date: day,
@@ -91,9 +91,13 @@ const MonthlyView = ({ currentDate }) => {
                         getEntryData(entry);
                         handleOpenEntryModal();
                       }}
-                      title={`${entry.subject} (${entry.startTime} - ${entry.endTime})`}
+                      title={`${entry.subject} (${entry.startTime} - ${entry.endTime})${
+                        entry.type === "recurring" ? " - Recurring" : ""
+                      }`}
                     >
-                      <span className={styles["entry-dot"]}>•</span>
+                      <span className={styles["entry-dot"]}>
+                        {entry.type === "recurring" ? "🔄" : "•"}
+                      </span>
                       <span className={styles["entry-subject"]}>
                         {entry.subject}
                       </span>

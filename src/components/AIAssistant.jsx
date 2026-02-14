@@ -56,9 +56,28 @@ const AIAssistant = () => {
       case "add": {
         success = addEntries(AIResponse);
         if (success) {
-          message = `${AIResponse.subject} has been added successfully to ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          // Format message based on entry type
+          if (AIResponse.type === "once") {
+            const dateObj = new Date(AIResponse.date);
+            const formattedDate = dateObj.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            });
+            message = `**${AIResponse.subject}** has been added successfully for ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          } else {
+            // Recurring entry
+            const recurrenceText = {
+              weekly: "every week",
+              biweekly: "every 2 weeks",
+              monthly: "every month"
+            }[AIResponse.recurrence] || "weekly";
+            
+            message = `**${AIResponse.subject}** has been added successfully for ${AIResponse.day}s (${recurrenceText}) from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          }
         } else {
-          message = `Failed to add ${AIResponse.subject}. There may be a time conflict.`;
+          message = `Failed to add **${AIResponse.subject}**. There may be a time conflict.`;
         }
         return message;
       }
@@ -69,22 +88,40 @@ const AIAssistant = () => {
         if (addResults.successful.length === 0) {
           message = `Failed to add any entries. All had conflicts:\n\n`;
           addResults.failed.forEach((fail) => {
-            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+            message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
           });
         } else if (addResults.failed.length === 0) {
           message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
           addResults.successful.forEach((entry) => {
-            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+            if (entry.type === "once") {
+              const dateObj = new Date(entry.date);
+              const formattedDate = dateObj.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric"
+              });
+              message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+            } else {
+              message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+            }
           });
         } else {
           message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
-          message += `**Successful:**\n`;
+          message += `**✅ Successful:**\n`;
           addResults.successful.forEach((entry) => {
-            message += `${entry.subject} - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+            if (entry.type === "once") {
+              const dateObj = new Date(entry.date);
+              const formattedDate = dateObj.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric"
+              });
+              message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+            } else {
+              message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+            }
           });
-          message += `\n**Failed:**\n`;
+          message += `\n**❌ Failed:**\n`;
           addResults.failed.forEach((fail) => {
-            message += `${fail.entry.subject} on ${fail.entry.day}: ${fail.reason}\n`;
+            message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
           });
         }
         return message;
@@ -93,7 +130,7 @@ const AIAssistant = () => {
       case "delete": {
         success = deleteEntries(AIResponse);
         if (success) {
-          message = `${AIResponse.subject} has been deleted successfully.`;
+          message = `**${AIResponse.subject}** has been deleted successfully.`;
         } else {
           message = `Deletion was cancelled.`;
         }
@@ -116,7 +153,16 @@ const AIAssistant = () => {
       case "update": {
         success = updateEntries(AIResponse);
         if (success) {
-          message = `Entry has been updated successfully to: ${AIResponse.subject} on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          if (AIResponse.type === "once") {
+            const dateObj = new Date(AIResponse.date);
+            const formattedDate = dateObj.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric"
+            });
+            message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          } else {
+            message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+          }
         } else {
           message = `Failed to update entry. There may be a time conflict with the new schedule.`;
         }
@@ -217,10 +263,10 @@ const AIAssistant = () => {
                 </p>
 
                 <div className={styles["suggestions"]}>
-                  <button>Add new entry</button>
+                  <button>Add exam on March 5th</button>
+                  <button>Add recurring class</button>
                   <button>Show my schedule</button>
-                  <button>What's on Monday?</button>
-                  <button>Delete an entry?</button>
+                  <button>Delete an entry</button>
                 </div>
               </div>
             )}{" "}

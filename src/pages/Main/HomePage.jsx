@@ -8,13 +8,18 @@ import { validateEntryWithConflict } from "../../utils/confilctDetector";
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
 const FormDataContext = createContext({});
+const CurrentViewContext = createContext({});
+
 
 const initialFormData = {
   subject: "",
   day: "",
+  date: "",
   startTime: "",
   endTime: "",
   notes: "",
+  type: "once", // "once" or "recurring"
+  recurrence: "weekly", // "weekly", "biweekly", "monthly"
   id: "",
 };
 
@@ -27,6 +32,33 @@ const HomePage = () => {
   });
   const [currentEntry, setCurrentEntry] = useState({});
   const [formData, setFormDataAdd] = useState(initialFormData);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Helper function to check if a date matches an entry
+  const doesDateMatchEntry = (entry, targetDate) => {
+    // For one-time entries, check exact date match
+    if (entry.type === "once" && entry.date) {
+      const entryDate = new Date(entry.date);
+      return (
+        entryDate.getFullYear() === targetDate.getFullYear() &&
+        entryDate.getMonth() === targetDate.getMonth() &&
+        entryDate.getDate() === targetDate.getDate()
+      );
+    }
+
+    // For recurring entries, check day name match
+    if (entry.type === "recurring" || !entry.type) {
+      const dayName = targetDate.toLocaleDateString("en-US", { weekday: "long" });
+      return entry.day === dayName;
+    }
+
+    return false;
+  };
+
+  // Filter entries for a specific date (used by Day/Month views)
+  const getEntriesForDate = (targetDate) => {
+    return entries.filter(entry => doesDateMatchEntry(entry, targetDate));
+  };
 
   const addEntries = (entry) => {
     const validation = validateEntryWithConflict(entries, entry, false);
@@ -50,17 +82,18 @@ const HomePage = () => {
     };
 
     entriesArray.forEach((entry) => {
-      //Unique ID for each entry added dynamically by the AI
       const entryWithId = {
         ...entry,
-        id: `${entry.subject}-${entry.day}-${entry.startTime}`,
+        id: entry.type === "once" 
+          ? `${entry.subject}-${entry.date}-${entry.startTime}`
+          : `${entry.subject}-${entry.day}-${entry.startTime}`,
       };
 
       const validation = validateEntryWithConflict(entries, entryWithId, false);
 
       if (!validation.isValid) {
         results.failed.push({
-          entryWithId,
+          entry: entryWithId,
           reason: validation.message,
         });
       } else {
@@ -123,7 +156,10 @@ const HomePage = () => {
       alert(validation.message);
       return false;
     } else {
-      const newId = `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
+      // Generate new ID based on entry type
+      const newId = updatedEntry.type === "once"
+        ? `${updatedEntry.subject}-${updatedEntry.date}-${updatedEntry.startTime}`
+        : `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
 
       const updatedEntries = entries.map((entry) =>
         entry.id === oldId ? { ...updatedEntry, id: newId } : entry
@@ -151,14 +187,17 @@ const HomePage = () => {
         updateEntries,
         addMultipleEntries,
         deleteMultipleEntries,
+        getEntriesForDate,
       }}
     >
       <CurrentEntryContext.Provider value={{ currentEntry, setCurrentEntry }}>
         <FormDataContext.Provider value={{ formData, setFormDataAdd }}>
-          <Header onOpenModal={handleOpenModal} />
-          <Timetable />
-          {isModalOpen && <Modal onClose={handleCloseModal} />}
-          {isEditEntryOpen && <EditEntry onClose={handleCloseOpenEntryModal} />}
+          <CurrentViewContext.Provider value={{ currentDate, setCurrentDate }}>
+            <Header onOpenModal={handleOpenModal} />
+            <Timetable />
+            {isModalOpen && <Modal onClose={handleCloseModal} />}
+            {isEditEntryOpen && <EditEntry onClose={handleCloseOpenEntryModal} />}
+          </CurrentViewContext.Provider>
         </FormDataContext.Provider>
       </CurrentEntryContext.Provider>
     </EntryContext.Provider>
@@ -166,4 +205,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
-export { EntryContext, CurrentEntryContext, FormDataContext };
+export { EntryContext, CurrentEntryContext, FormDataContext, CurrentViewContext };

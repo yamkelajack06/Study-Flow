@@ -3,10 +3,9 @@ import { CurrentEntryContext, EntryContext } from "./HomePage";
 import styles from "../../styles/dailyview.module.css";
 import generateTimetableTimes from "../../utils/generateTimes";
 import TimetableEntry from "../../components/TimetableEntry";
-import findEntriesForCell from "../../utils/findGridEntry";
 
 const DailyView = ({ currentDate }) => {
-  const { entries, handleOpenEntryModal } = useContext(EntryContext);
+  const { getEntriesForDate, handleOpenEntryModal } = useContext(EntryContext);
   const { setCurrentEntry } = useContext(CurrentEntryContext);
 
   const timetableHours = generateTimetableTimes();
@@ -19,14 +18,20 @@ const DailyView = ({ currentDate }) => {
     year: "numeric",
   });
 
+  // Get all entries for this specific date
+  const entriesForDay = getEntriesForDate(currentDate);
+
   const getEntryData = (entry) => {
     setCurrentEntry(entry);
     return {
       subject: entry.subject,
       day: entry.day,
+      date: entry.date,
       notes: entry.notes,
       startTime: entry.startTime,
       endTime: entry.endTime,
+      type: entry.type,
+      recurrence: entry.recurrence,
     };
   };
 
@@ -39,9 +44,10 @@ const DailyView = ({ currentDate }) => {
 
       <div className={styles["schedule-container"]}>
         {timetableHours.map((timeSlot, index) => {
-          // Find entries for this specific day and time
-          const dayObj = { day: dayName };
-          const entriesForSlot = findEntriesForCell(entries, dayObj, timeSlot);
+          // Find entries for this time slot
+          const entriesForSlot = entriesForDay.filter(
+            entry => entry.startTime === timeSlot.startTime
+          );
 
           return (
             <div key={index} className={styles["time-slot"]}>

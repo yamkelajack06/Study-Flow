@@ -1,94 +1,308 @@
 :root {
   --lightgray: #9ba4b5;
   --red: #dc3545;
+  --secondary-blue: #447ff8;
+  --secondary-blue-20: rgba(131, 170, 248, 0.2);
+  --success-green: #10b981;
+  --success-green-light: #d1fae5;
 }
 
 .add-entry-form {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 section {
   width: 95%;
-  height: 85%;
+  height: auto;
   margin: 0.5rem auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: flex-start;
+  gap: 0.8rem;
 }
 
 h1 {
-  margin: 1rem;
-  font-size: 3rem;
+  margin: 0.8rem 1rem;
+  font-size: 2.4rem;
 }
 
+/* Entry Type Selector */
+.entry-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.5rem auto;
+  width: 95%;
+}
+
+.entry-type-selector label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.type-buttons {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.type-button {
+  flex: 1;
+  padding: 0.9rem;
+  font-size: 1.4rem;
+  border: 2px solid var(--lightgray);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.type-button:hover {
+  border-color: var(--secondary-blue);
+  background-color: var(--secondary-blue-20);
+}
+
+.type-button.active {
+  border-color: var(--secondary-blue);
+  background-color: var(--secondary-blue);
+  color: white;
+  font-weight: 600;
+}
+
+/* Entry Type Indicator (for edit form) */
+.entry-type-indicator {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem auto;
+  width: 95%;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  border-radius: 20px;
+  background-color: var(--secondary-blue-20);
+  color: var(--secondary-blue);
+}
+
+/* Input Fields */
 .input-field {
   display: flex;
   flex-direction: column;
-  height: 6rem;
+  height: auto;
+  min-height: auto;
   width: 95%;
-  margin: 1rem auto;
+  margin: 0.5rem auto;
 }
 
 .input-field label {
-  font-size: 1.5rem;
-  margin: 0 0.5rem;
+  font-size: 1.4rem;
+  margin: 0 0.5rem 0.4rem 0.5rem;
+  font-weight: 500;
+  color: #333;
 }
 
 .input-field input {
-  height: 50px;
-  margin: 0.5rem;
+  height: 42px;
+  margin: 0.3rem 0.5rem;
   border-radius: 6px;
   border: 2px solid var(--lightgray);
-  font-size: 1.6rem;
+  font-size: 1.5rem;
+  padding: 0 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.input-field input:focus {
+  outline: none;
+  border-color: var(--secondary-blue);
+}
+
+.input-field input[type="date"] {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.input-field input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  font-size: 1.4rem;
 }
 
 .input-field select {
-  height: 60px;
-  margin: 0.5rem;
+  height: 42px;
+  margin: 0.3rem 0.5rem;
   border-radius: 6px;
   border: 2px solid var(--lightgray);
-  font-size: 1.6rem;
+  font-size: 1.5rem;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.input-field select:focus {
+  outline: none;
+  border-color: var(--secondary-blue);
 }
 
 .input-field textarea {
   max-width: 100%;
-  font-size: 1.6rem;
+  min-height: 60px;
+  font-size: 1.4rem;
   border-radius: 6px;
+  border: 2px solid var(--lightgray);
+  margin: 0.3rem 0.5rem;
+  padding: 0.8rem;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
 }
 
-.form-actions button {
-  top: 1rem;
-  right: 1rem;
-  border: none;
-  cursor: pointer;
-  height: 4rem;
-  width: 10rem;
-  margin: 1rem;
-  background-color: var(--secondary-blue);
-  border-radius: 6px;
-  color: white;
-  font-size: 1.6rem;
+.input-field textarea:focus {
+  outline: none;
+  border-color: var(--secondary-blue);
 }
 
+/* Time Container */
 .time-container {
   display: flex;
   flex: 1;
   width: 95%;
-  height: 50px;
-  margin: 0.5rem auto;
+  height: auto;
+  margin: 0.3rem auto;
+  gap: 0.8rem;
 }
 
+.time-container .input-field {
+  margin: 0;
+}
+
+/* Form Actions */
 .form-actions {
-  width: 80%;
-  margin: 0 auto;
+  width: 95%;
+  margin: 1rem auto 0.8rem auto;
   display: flex;
   justify-content: space-evenly;
+  gap: 0.8rem;
 }
 
-.form-actions
-.delete-button {
-  background-color: var(--red);
+.form-actions button {
+  border: none;
+  cursor: pointer;
+  height: 4rem;
+  flex: 1;
+  background-color: var(--secondary-blue);
+  border-radius: 8px;
   color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.form-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(68, 127, 248, 0.3);
+}
+
+.form-actions .cancel-btn {
+  background-color: #6b7280;
+}
+
+.form-actions .cancel-btn:hover {
+  background-color: #4b5563;
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+}
+
+.form-actions .submit-btn {
+  background-color: var(--secondary-blue);
+}
+
+.form-actions .submit-btn:hover {
+  background-color: #3668d4;
+}
+
+.form-actions .delete-button {
+  background-color: var(--red);
+}
+
+.form-actions .delete-button:hover {
+  background-color: #b91c1c;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.2rem;
+    margin: 0.6rem 1rem;
+  }
+
+  .type-button {
+    padding: 0.8rem;
+    font-size: 1.3rem;
+  }
+
+  .input-field label {
+    font-size: 1.3rem;
+  }
+
+  .input-field input,
+  .input-field select {
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .input-field textarea {
+    font-size: 1.3rem;
+    min-height: 55px;
+  }
+
+  .form-actions button {
+    font-size: 1.4rem;
+    height: 3.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+    margin: 0.5rem 1rem;
+  }
+
+  .entry-type-selector {
+    gap: 0.5rem;
+  }
+
+  .type-buttons {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .type-button {
+    padding: 0.8rem;
+    font-size: 1.2rem;
+  }
+
+  .input-field {
+    margin: 0.4rem auto;
+  }
+
+  .time-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    margin: 0.8rem auto 0.6rem auto;
+  }
+
+  .form-actions button {
+    width: 100%;
+    height: 3.6rem;
+  }
 }

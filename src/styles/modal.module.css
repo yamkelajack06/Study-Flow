@@ -17,10 +17,8 @@
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
-  width: 50%;
-  max-width: 450px;
-  max-height: 450px;
-  min-height: 60vh;
+  width: 40%;
+  height: 80vh;
 }
 
 .close-button img {

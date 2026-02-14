@@ -1,15 +1,18 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import styles from "../styles/entryform.module.css";
 import generateTimetableTimes, { Days_Const } from "../utils/generateTimes";
-import { EntryContext, FormDataContext } from "../pages/Main/HomePage";
+import { EntryContext, FormDataContext, CurrentViewContext } from "../pages/Main/HomePage";
 import { validateTimeOrder } from "../utils/validateTime";
 
 const AddEntry = ({ onClose }) => {
   const { addEntries } = useContext(EntryContext);
   const { formData, setFormDataAdd } = useContext(FormDataContext);
-  //This is the start and end time options
+  const { currentDate } = useContext(CurrentViewContext);
+  
+  // Local state for entry type
+  const [entryType, setEntryType] = useState("once"); // "once" or "recurring"
+  
   const Times = generateTimetableTimes();
-  //Monday to Sunday
   const Days = Days_Const;
 
   const handleInputChange = (e) => {
@@ -17,13 +20,25 @@ const AddEntry = ({ onClose }) => {
     setFormDataAdd((prevData) => {
       const updatedData = { ...prevData, [id]: value };
 
-      // Generate unique ID when we have subject, day, and startTime
-      if (updatedData.subject && updatedData.day && updatedData.startTime) {
+      // Generate unique ID when we have subject, day/date, and startTime
+      if (entryType === "once" && updatedData.subject && updatedData.date && updatedData.startTime) {
+        updatedData.id = `${updatedData.subject}-${updatedData.date}-${updatedData.startTime}`;
+      } else if (entryType === "recurring" && updatedData.subject && updatedData.day && updatedData.startTime) {
         updatedData.id = `${updatedData.subject}-${updatedData.day}-${updatedData.startTime}`;
       }
 
       return updatedData;
     });
+  };
+
+  const handleEntryTypeChange = (type) => {
+    setEntryType(type);
+    // Clear day or date depending on type
+    if (type === "once") {
+      setFormDataAdd(prev => ({ ...prev, day: "", recurrence: "none" }));
+    } else {
+      setFormDataAdd(prev => ({ ...prev, date: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -35,53 +50,149 @@ const AddEntry = ({ onClose }) => {
       return;
     }
 
-    const entryWithId = {
-      ...formData,
-      id: `${formData.subject}-${formData.day}-${formData.startTime}`,
-    };
+    // Prepare entry based on type
+    let entryWithId;
+    
+    if (entryType === "once") {
+      // One-time entry with specific date
+      if (!formData.date) {
+        alert("Please select a date for this entry");
+        return;
+      }
+      
+      // Get day name from date
+      const dateObj = new Date(formData.date);
+      const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+      
+      entryWithId = {
+        ...formData,
+        day: dayName,
+        type: "once",
+        recurrence: "none",
+        id: `${formData.subject}-${formData.date}-${formData.startTime}`,
+      };
+    } else {
+      // Recurring entry (weekly repeat)
+      if (!formData.day) {
+        alert("Please select a day for this recurring entry");
+        return;
+      }
+      
+      entryWithId = {
+        ...formData,
+        date: null,
+        type: "recurring",
+        recurrence: formData.recurrence || "weekly",
+        id: `${formData.subject}-${formData.day}-${formData.startTime}`,
+      };
+    }
+
     const success = addEntries(entryWithId);
     if (success) {
-      onClose(); // only close on successful entry
+      onClose();
     }
+  };
+
+  // Get default date (today) for date picker
+  const getDefaultDate = () => {
+    if (currentDate) {
+      return currentDate.toISOString().split('T')[0];
+    }
+    return new Date().toISOString().split('T')[0];
   };
 
   return (
     <form className={styles["add-entry-form"]} onSubmit={handleSubmit}>
       <h1>Add New Entry</h1>
       <section className={styles["input-section"]}>
+        
+        {/* Entry Type Selection */}
+        <div className={styles["entry-type-selector"]}>
+          <label>Entry Type</label>
+          <div className={styles["type-buttons"]}>
+            <button
+              type="button"
+              className={`${styles["type-button"]} ${entryType === "once" ? styles["active"] : ""}`}
+              onClick={() => handleEntryTypeChange("once")}
+            >
+              One-time
+            </button>
+            <button
+              type="button"
+              className={`${styles["type-button"]} ${entryType === "recurring" ? styles["active"] : ""}`}
+              onClick={() => handleEntryTypeChange("recurring")}
+            >
+              Recurring
+            </button>
+          </div>
+        </div>
+
         <div className={styles["input-field"]}>
           <label htmlFor="subject">Subject/Task</label>
           <input
             id="subject"
             value={formData.subject}
             onChange={handleInputChange}
+            placeholder="e.g., Math Class, Study Session"
             required
           />
         </div>
-        <div className={styles["input-field"]}>
-          <label htmlFor="day">Day</label>
-          <select
-            id="day"
-            value={formData.day}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="" disabled>
-              Select a day
-            </option>
-            {Days.map((day, idx) => (
-              <option key={`${day.day}+${idx}`} value={day.day}>
-                {day.day}
-              </option>
-            ))}
-          </select>
-        </div>
+
+        {/* Conditional rendering based on entry type */}
+        {entryType === "once" ? (
+          <div className={styles["input-field"]}>
+            <label htmlFor="date">Date</label>
+            <input
+              type="date"
+              id="date"
+              value={formData.date || getDefaultDate()}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        ) : (
+          <>
+            <div className={styles["input-field"]}>
+              <label htmlFor="day">Day of Week</label>
+              <select
+                id="day"
+                value={formData.day}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="" disabled>
+                  Select a day
+                </option>
+                {Days.map((day, idx) => (
+                  <option key={`${day.day}+${idx}`} value={day.day}>
+                    {day.day}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles["input-field"]}>
+              <label htmlFor="recurrence">Repeat Pattern</label>
+              <select
+                id="recurrence"
+                value={formData.recurrence || "weekly"}
+                onChange={handleInputChange}
+              >
+                <option value="weekly">Every week</option>
+                <option value="biweekly">Every 2 weeks</option>
+                <option value="monthly">Every month</option>
+              </select>
+            </div>
+          </>
+        )}
+
         <div className={styles["input-field"]}>
           <label htmlFor="notes">Notes (Optional)</label>
           <textarea
             id="notes"
             value={formData.notes}
             onChange={handleInputChange}
+            placeholder="Add any additional notes here..."
             maxLength={100}
           />
         </div>
@@ -136,7 +247,7 @@ const AddEntry = ({ onClose }) => {
             Cancel
           </button>
           <button type="submit" className={styles["submit-btn"]}>
-            Add Entry
+            {entryType === "once" ? "Add Entry" : "Add Recurring Entry"}
           </button>
         </div>
       </section>
