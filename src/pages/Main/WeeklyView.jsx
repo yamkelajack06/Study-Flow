@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { CurrentEntryContext, EntryContext } from "./HomePage";
-import styles from "../../styles/weeklyview.module.css"
+import styles from "../../styles/weeklyview.module.css";
 import generateTimetableTimes, { Days_Const } from "../../utils/generateTimes";
 import TimetableEntry from "../../components/TimetableEntry";
 
@@ -18,13 +18,13 @@ const WeeklyView = ({ currentDate }) => {
     const day = start.getDay();
     const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
     const monday = new Date(start.setDate(diff));
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
       dates.push(date);
     }
-    
+
     return dates;
   };
 
@@ -36,8 +36,15 @@ const WeeklyView = ({ currentDate }) => {
     const sunday = weekDates[6];
 
     return {
-      start: monday.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      end: sunday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      start: monday.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      end: sunday.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
     };
   };
 
@@ -69,19 +76,21 @@ const WeeklyView = ({ currentDate }) => {
         <div className={`${styles["grid-item"]} ${styles["empty-cell"]}`}>
           <h3>Time</h3>
         </div>
-        
+
         {/* Day headers with actual dates */}
         {Days.map((Day, dayIndex) => {
           const date = weekDates[dayIndex];
           const dateNum = date.getDate();
-          
+
           return (
             <div
               className={`${styles["grid-item"]} ${styles["day-header"]}`}
               key={Day.abbreviation}
             >
               <h3>{Day.day}</h3>
-              <h4>{Day.abbreviation} {dateNum}</h4>
+              <h4>
+                {Day.abbreviation} {dateNum}
+              </h4>
             </div>
           );
         })}
@@ -99,13 +108,13 @@ const WeeklyView = ({ currentDate }) => {
             {Days.map((Day, dayIndex) => {
               // Get the actual date for this cell
               const cellDate = weekDates[dayIndex];
-              
+
               // Get entries for this specific date
               const entriesForDate = getEntriesForDate(cellDate);
-              
+
               // Filter by time slot
               const entriesForCell = entriesForDate.filter(
-                entry => entry.startTime === Time.startTime
+                (entry) => entry.startTime === Time.startTime,
               );
 
               return (
