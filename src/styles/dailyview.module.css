@@ -1,0 +1,145 @@
+:root {
+  --secondary-blue: #447ff8;
+  --primary-background: #f9fafc;
+  --lines-border: #e4e7ed;
+  --lightgray-text: #9ba4b5;
+  --darkgray-text: #5a5e65;
+}
+
+.daily-view-container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.day-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.day-header h2 {
+  font-size: 2rem;
+  margin: 0;
+  color: black;
+}
+
+.day-header p {
+  font-size: 1.6rem;
+  color: var(--lightgray-text);
+  margin: 0.5rem 0 0 0;
+}
+
+.schedule-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.time-slot {
+  display: flex;
+  border-bottom: 1px solid var(--lines-border);
+  min-height: 80px;
+  transition: background-color 0.2s;
+}
+
+.time-slot:hover {
+  background-color: #f8f9fa;
+}
+
+.time-slot:last-child {
+  border-bottom: none;
+}
+
+.time-label {
+  width: 120px;
+  min-width: 120px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 2px solid var(--lines-border);
+  background-color: #fafbfc;
+}
+
+.start-time {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--darkgray-text);
+}
+
+.end-time {
+  font-size: 1.3rem;
+  color: var(--lightgray-text);
+  margin-top: 0.3rem;
+}
+
+.slot-content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-slot {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: var(--lightgray-text);
+  font-size: 1.4rem;
+  font-style: italic;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .daily-view-container {
+    width: 95%;
+    padding: 1rem 0;
+  }
+
+  .day-header h2 {
+    font-size: 2.4rem;
+  }
+
+  .day-header p {
+    font-size: 1.4rem;
+  }
+
+  .time-label {
+    width: 90px;
+    min-width: 90px;
+    padding: 1rem;
+  }
+
+  .start-time {
+    font-size: 1.4rem;
+  }
+
+  .end-time {
+    font-size: 1.2rem;
+  }
+
+  .slot-content {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .time-label {
+    width: 70px;
+    min-width: 70px;
+    padding: 0.8rem;
+  }
+
+  .start-time {
+    font-size: 1.2rem;
+  }
+
+  .end-time {
+    font-size: 1rem;
+  }
+}

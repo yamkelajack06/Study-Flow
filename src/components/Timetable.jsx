@@ -1,11 +1,78 @@
-import styles from "../styles/timetable.module.css";
-import TimetableGrid from "./TimetableGrid";
-import calendarIcon from "../assets/calendar-blue.svg";
 import { useState } from "react";
-import TimetableEntry from "./TimetableEntry";
+import styles from "../styles/timetable.module.css";
+import calendarIcon from "../assets/calendar-blue.svg";
+import DailyView from "../pages/Main/DailyView";
+import WeeklyView from "../pages/Main/WeeklyView";
+import MonthlyView from "../pages/Main/MonthlyView";
 import AIAssistant from "./AIAssistant";
 
 const Timetable = () => {
+  const [currentView, setCurrentView] = useState("Week");
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
+
+  // Navigation functions
+  const navigatePrevious = () => {
+    const newDate = new Date(currentDate);
+    
+    switch (currentView) {
+      case "Day":
+        newDate.setDate(newDate.getDate() - 1);
+        break;
+      case "Week":
+        newDate.setDate(newDate.getDate() - 7);
+        break;
+      case "Month":
+        newDate.setMonth(newDate.getMonth() - 1);
+        break;
+      default:
+        break;
+    }
+    
+    setCurrentDate(newDate);
+  };
+
+  const navigateNext = () => {
+    const newDate = new Date(currentDate);
+    
+    switch (currentView) {
+      case "Day":
+        newDate.setDate(newDate.getDate() + 1);
+        break;
+      case "Week":
+        newDate.setDate(newDate.getDate() + 7);
+        break;
+      case "Month":
+        newDate.setMonth(newDate.getMonth() + 1);
+        break;
+      default:
+        break;
+    }
+    
+    setCurrentDate(newDate);
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  // Render the appropriate view
+  const renderView = () => {
+    switch (currentView) {
+      case "Day":
+        return <DailyView currentDate={currentDate} />;
+      case "Week":
+        return <WeeklyView currentDate={currentDate} />;
+      case "Month":
+        return <MonthlyView currentDate={currentDate} />;
+      default:
+        return <WeeklyView currentDate={currentDate} />;
+    }
+  };
+
   return (
     <div className={styles["timetable"]}>
       <div className={styles["schedule-and-controls"]}>
@@ -14,44 +81,67 @@ const Timetable = () => {
           <h1>Weekly Schedule</h1>
         </div>
         <div className={styles["controls"]}>
-          <GridView />
+          <GridView 
+            currentView={currentView} 
+            onViewChange={handleViewChange} 
+          />
         </div>
       </div>
-      <TimetableGrid />
+
+      {/* Date Navigation */}
+      <div className={styles["date-navigation"]}>
+        <button 
+          className={styles["nav-button"]} 
+          onClick={navigatePrevious}
+          aria-label="Previous"
+        >
+          ← Previous
+        </button>
+        
+        <button 
+          className={styles["today-button"]} 
+          onClick={goToToday}
+        >
+          Today
+        </button>
+        
+        <button 
+          className={styles["nav-button"]} 
+          onClick={navigateNext}
+          aria-label="Next"
+        >
+          Next →
+        </button>
+      </div>
+
+      {renderView()}
       <AIAssistant />
     </div>
   );
 };
 
-const GridView = () => {
-  //This is for tracking which button is clicked currently
-  const [isClicked, setIsClicked] = useState("Week");
-
-  const handleClick = (buttonName) => {
-    setIsClicked(buttonName);
-  };
-
+const GridView = ({ currentView, onViewChange }) => {
   return (
     <>
       <button
         className={`${styles["button-control-left"]} ${
-          isClicked === "Day" ? styles["clicked"] : ""
+          currentView === "Day" ? styles["clicked"] : ""
         }`}
-        onClick={() => handleClick("Day")}
+        onClick={() => onViewChange("Day")}
       >
         Day
       </button>
       <button
-        className={isClicked === "Week" ? styles["clicked"] : ""}
-        onClick={() => handleClick("Week")}
+        className={currentView === "Week" ? styles["clicked"] : ""}
+        onClick={() => onViewChange("Week")}
       >
         Week
       </button>
       <button
         className={`${styles["button-control-right"]} ${
-          isClicked === "Month" ? styles["clicked"] : ""
+          currentView === "Month" ? styles["clicked"] : ""
         }`}
-        onClick={() => handleClick("Month")}
+        onClick={() => onViewChange("Month")}
       >
         Month
       </button>

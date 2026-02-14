@@ -1,0 +1,148 @@
+:root {
+  --primary-blue: #2d72ff;
+  --secondary-blue: #447ff8;
+  --header-color: #ffffff;
+  --primary-background: #f9fafc;
+  --lines-border: #e4e7ed;
+  --lightgray-text: #9ba4b5;
+  --darkgray-text: #5a5e65;
+  --black-text: #333333;
+  --app-logo: #3b82f6;
+  --secondary-blue-20: rgba(131, 170, 248, 0.804);
+}
+
+.weekly-view-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.week-range {
+  width: 90%;
+  max-width: 1400px;
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.week-range p {
+  font-size: 2rem;
+  color: var(--darkgray-text);
+  margin: 0;
+  font-weight: 600;
+}
+
+.grid-container {
+  outline: 2px solid var(--lines-border);
+  margin: 1rem;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1.5px;
+  width: 90%;
+  max-width: 1400px;
+  background-color: white;
+}
+
+.grid-item {
+  outline: 0.2px solid var(--lines-border);
+  height: auto;
+  min-height: 70px;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid-item.grid-cell {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 0;
+  max-height: 120px;
+  overflow-y: auto;
+  min-height: 70px;
+}
+
+.grid-item h3 {
+  font-size: 1.6rem;
+  width: 90%;
+  margin: 1rem auto;
+}
+
+.grid-item.day-header {
+  text-align: center;
+}
+
+.time-label .start-time,
+.end-time {
+  margin: 1rem;
+  color: var(--darkgray-text);
+  width: 90%;
+}
+
+h4 {
+  font-size: 1.4rem;
+  width: 90%;
+  margin: 1rem auto;
+}
+
+h4,
+.end-time {
+  color: var(--lightgray-text);
+}
+
+@media (max-width: 900px) {
+  .week-range {
+    width: 95%;
+  }
+
+  .week-range p {
+    font-size: 1.8rem;
+  }
+
+  .grid-container {
+    width: 95%;
+    margin: 1rem auto;
+    grid-template-columns: 0.8fr repeat(7, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .week-range {
+    width: 97%;
+  }
+
+  .week-range p {
+    font-size: 1.6rem;
+  }
+
+  .grid-container {
+    width: 97%;
+    margin: 1rem auto;
+    grid-template-columns: 5rem repeat(7, 1fr);
+  }
+  
+  .grid-item.day-header h3 {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .week-range p {
+    font-size: 1.4rem;
+  }
+
+  .grid-item h3 {
+    font-size: 1.3rem;
+  }
+
+  .grid-item h4 {
+    font-size: 1.3rem;
+  }
+}
