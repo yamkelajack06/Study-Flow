@@ -11,6 +11,7 @@
   --secondary-blue-20: rgba(131, 170, 248, 0.804);
 }
 
+/* Week Range Display - FIXED SIZE */
 .weekly-view-wrapper {
   width: 100%;
   display: flex;
@@ -24,7 +25,9 @@
   text-align: center;
   margin-bottom: 1rem;
   padding: 1.5rem;
+  background: white;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .week-range p {
@@ -34,6 +37,7 @@
   font-weight: 600;
 }
 
+/* ORIGINAL GRID STYLES - PRESERVED EXACTLY */
 .grid-container {
   outline: 2px solid var(--lines-border);
   margin: 1rem;
@@ -77,6 +81,14 @@
 
 .grid-item.day-header {
   text-align: center;
+  position: relative;
+}
+
+.grid-item.day-header h4 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 .time-label .start-time,

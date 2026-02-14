@@ -1,37 +1,43 @@
 import { useContext } from "react";
 import { CurrentEntryContext, EntryContext } from "./HomePage";
-import styles from "../../styles/weeklyview.module.css";
+import styles from "../../styles/weeklyview.module.css"
 import generateTimetableTimes, { Days_Const } from "../../utils/generateTimes";
 import TimetableEntry from "../../components/TimetableEntry";
-import findEntriesForCell from "../../utils/findGridEntry";
 
 const WeeklyView = ({ currentDate }) => {
-  const { entries, handleOpenEntryModal } = useContext(EntryContext);
+  const { getEntriesForDate, handleOpenEntryModal } = useContext(EntryContext);
   const { setCurrentEntry } = useContext(CurrentEntryContext);
 
   const timetableHours = generateTimetableTimes();
   const Days = Days_Const;
 
-  // Calculate the week range for display
-  const getWeekRange = () => {
+  // Get the actual dates for the week
+  const getWeekDates = () => {
+    const dates = [];
     const start = new Date(currentDate);
     const day = start.getDay();
     const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
     const monday = new Date(start.setDate(diff));
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      dates.push(date);
+    }
+    
+    return dates;
+  };
 
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
+  const weekDates = getWeekDates();
+
+  // Calculate the week range for display
+  const getWeekRange = () => {
+    const monday = weekDates[0];
+    const sunday = weekDates[6];
 
     return {
-      start: monday.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      end: sunday.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
+      start: monday.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      end: sunday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
     };
   };
 
@@ -42,9 +48,12 @@ const WeeklyView = ({ currentDate }) => {
     return {
       subject: entry.subject,
       day: entry.day,
+      date: entry.date,
       notes: entry.notes,
       startTime: entry.startTime,
       endTime: entry.endTime,
+      type: entry.type,
+      recurrence: entry.recurrence,
     };
   };
 
@@ -60,15 +69,22 @@ const WeeklyView = ({ currentDate }) => {
         <div className={`${styles["grid-item"]} ${styles["empty-cell"]}`}>
           <h3>Time</h3>
         </div>
-        {Days.map((Day) => (
-          <div
-            className={`${styles["grid-item"]} ${styles["day-header"]}`}
-            key={Day.abbreviation}
-          >
-            <h3>{Day.day}</h3>
-            <h4>{Day.abbreviation}</h4>
-          </div>
-        ))}
+        
+        {/* Day headers with actual dates */}
+        {Days.map((Day, dayIndex) => {
+          const date = weekDates[dayIndex];
+          const dateNum = date.getDate();
+          
+          return (
+            <div
+              className={`${styles["grid-item"]} ${styles["day-header"]}`}
+              key={Day.abbreviation}
+            >
+              <h3>{Day.day}</h3>
+              <h4>{Day.abbreviation} {dateNum}</h4>
+            </div>
+          );
+        })}
 
         {timetableHours.map((Time, timeIndex) => (
           <>
@@ -80,8 +96,18 @@ const WeeklyView = ({ currentDate }) => {
               <h4 className={styles["end-time"]}>{Time.endTime}</h4>
             </div>
 
-            {Days.map((Day) => {
-              const entriesForCell = findEntriesForCell(entries, Day, Time);
+            {Days.map((Day, dayIndex) => {
+              // Get the actual date for this cell
+              const cellDate = weekDates[dayIndex];
+              
+              // Get entries for this specific date
+              const entriesForDate = getEntriesForDate(cellDate);
+              
+              // Filter by time slot
+              const entriesForCell = entriesForDate.filter(
+                entry => entry.startTime === Time.startTime
+              );
+
               return (
                 <div
                   className={`${styles["grid-item"]} ${styles["grid-cell"]}`}

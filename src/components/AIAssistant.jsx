@@ -106,7 +106,7 @@ const AIAssistant = () => {
           });
         } else {
           message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
-          message += `**✅ Successful:**\n`;
+          message += `**Successful:**\n`;
           addResults.successful.forEach((entry) => {
             if (entry.type === "once") {
               const dateObj = new Date(entry.date);
@@ -119,7 +119,7 @@ const AIAssistant = () => {
               message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
             }
           });
-          message += `\n**❌ Failed:**\n`;
+          message += `\n**Failed:**\n`;
           addResults.failed.forEach((fail) => {
             message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
           });
@@ -254,7 +254,6 @@ const AIAssistant = () => {
           <div className={styles["chat-messages"]} ref={chatContainerRef}>
             {!isChatting && (
               <div className={styles["empty-state"]}>
-                <span className={styles["sparkle-large"]}>✨</span>
                 <h4 className={styles["empty-title"]}>
                   Hi! I'm your study assistant
                 </h4>

@@ -13,12 +13,13 @@ const DailyView = ({ currentDate }) => {
   // Get day name from currentDate
   const dayName = currentDate.toLocaleDateString("en-US", { weekday: "long" });
   const formattedDate = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
   });
 
-  // Get all entries for this specific date
+  // Get all entries for this specific date (both one-time and recurring)
   const entriesForDay = getEntriesForDate(currentDate);
 
   const getEntryData = (entry) => {
@@ -44,7 +45,7 @@ const DailyView = ({ currentDate }) => {
 
       <div className={styles["schedule-container"]}>
         {timetableHours.map((timeSlot, index) => {
-          // Find entries for this time slot
+          // Find entries for this time slot on this specific date
           const entriesForSlot = entriesForDay.filter(
             entry => entry.startTime === timeSlot.startTime
           );

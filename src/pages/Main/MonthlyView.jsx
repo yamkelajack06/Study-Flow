@@ -6,7 +6,7 @@ const MonthlyView = ({ currentDate }) => {
   const { getEntriesForDate, handleOpenEntryModal } = useContext(EntryContext);
   const { setCurrentEntry } = useContext(CurrentEntryContext);
 
-  // Get month info
+  // Get month info from the currentDate being viewed
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const monthName = currentDate.toLocaleDateString("en-US", { month: "long" });
@@ -96,7 +96,7 @@ const MonthlyView = ({ currentDate }) => {
                       }`}
                     >
                       <span className={styles["entry-dot"]}>
-                        {entry.type === "recurring" ? "🔄" : "•"}
+                        •
                       </span>
                       <span className={styles["entry-subject"]}>
                         {entry.subject}
