@@ -17,7 +17,7 @@ const Timetable = () => {
   // Navigation functions
   const navigatePrevious = () => {
     const newDate = new Date(currentDate);
-    
+
     switch (currentView) {
       case "Day":
         newDate.setDate(newDate.getDate() - 1);
@@ -31,13 +31,13 @@ const Timetable = () => {
       default:
         break;
     }
-    
+
     setCurrentDate(newDate);
   };
 
   const navigateNext = () => {
     const newDate = new Date(currentDate);
-    
+
     switch (currentView) {
       case "Day":
         newDate.setDate(newDate.getDate() + 1);
@@ -51,7 +51,7 @@ const Timetable = () => {
       default:
         break;
     }
-    
+
     setCurrentDate(newDate);
   };
 
@@ -73,40 +73,54 @@ const Timetable = () => {
     }
   };
 
+  const getScheduleTitle = () => {
+    switch (currentView) {
+      case "Day":
+        return currentDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        });
+      case "Week":
+        return "Weekly Schedule";
+      case "Month":
+        return currentDate.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        });
+      default:
+        return "Weekly Schedule";
+    }
+  };
+
   return (
     <div className={styles["timetable"]}>
       <div className={styles["schedule-and-controls"]}>
         <div className={styles["schedule"]}>
           <img src={calendarIcon} alt="calendar icon" />
-          <h1>Weekly Schedule</h1>
+          <h1>{getScheduleTitle()}</h1>
         </div>
         <div className={styles["controls"]}>
-          <GridView 
-            currentView={currentView} 
-            onViewChange={handleViewChange} 
-          />
+          <GridView currentView={currentView} onViewChange={handleViewChange} />
         </div>
       </div>
 
       {/* Date Navigation */}
       <div className={styles["date-navigation"]}>
-        <button 
-          className={styles["nav-button"]} 
+        <button
+          className={styles["nav-button"]}
           onClick={navigatePrevious}
           aria-label="Previous"
         >
           ← Previous
         </button>
-        
-        <button 
-          className={styles["today-button"]} 
-          onClick={goToToday}
-        >
+
+        <button className={styles["today-button"]} onClick={goToToday}>
           Today
         </button>
-        
-        <button 
-          className={styles["nav-button"]} 
+
+        <button
+          className={styles["nav-button"]}
           onClick={navigateNext}
           aria-label="Next"
         >
