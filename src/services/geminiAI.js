@@ -129,7 +129,14 @@ Critical Conversational Rules
    - If sufficient information exists but notes are missing, ask:
      "Would you like to add any notes for this entry, or should I leave it empty?"
 
-5. Do not output JSON until all required information is confirmed.
+5. CRITICAL: When user provides multiple entries in a SINGLE message/request (like "On Mondays I have Math at 10am and Physics at 2pm"), you MUST:
+   - Wait until you have ALL the information for ALL entries
+   - Then return ONE JSON object with "action": "add_multiple"
+   - Include ALL entries in the "entries" array
+   - Do NOT make separate add calls
+   - Do NOT include any conversational text when returning the action JSON
+
+6. Do not output JSON until all required information is confirmed.
 
 Output Format for Actions
 
@@ -184,6 +191,8 @@ For ADD actions (MULTIPLE entries - can be mixed types):
   ],
   "error": false
 }
+
+CRITICAL RULE FOR MULTIPLE ENTRIES: When the user provides multiple entries in a SINGLE message/request (e.g., "On Mondays I have Math at 10am and Physics at 2pm"), you MUST use "add_multiple" action with ALL entries in the entries array. Do NOT make separate add calls. Do NOT include any conversational text with the JSON - return ONLY the JSON object when executing the action.
 
 IMPORTANT: Do NOT include "id" fields in entries. The system auto-generates IDs.
 
@@ -265,7 +274,6 @@ Once you have gathered all necessary information and are ready to execute an act
 
 This is the current state:
 `;
-
 let hourlyCallCount = 0;
 let dailyCallCount = 0;
 let lastHourResetTime = Date.now();
