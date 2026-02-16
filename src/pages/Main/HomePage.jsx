@@ -10,6 +10,14 @@ const CurrentEntryContext = createContext({});
 const FormDataContext = createContext({});
 const CurrentViewContext = createContext({});
 
+const defaultCategories = [
+  { name: "Lecture", color: "#447ff8" },
+  { name: "Study", color: "#10b981" },
+  { name: "Assignment", color: "#f59e0b" },
+  { name: "Exam", color: "#dc3545" },
+  { name: "Lab", color: "#8b5cf6" },
+  { name: "Other", color: "#6b7280" },
+];
 
 const initialFormData = {
   subject: "",
@@ -21,6 +29,8 @@ const initialFormData = {
   type: "once", // "once" or "recurring"
   recurrence: "weekly", // "weekly", "biweekly", "monthly"
   id: "",
+  category: "Lecture",
+  color: "#447ff8", // Default Blue
 };
 
 const HomePage = () => {
@@ -33,6 +43,19 @@ const HomePage = () => {
   const [currentEntry, setCurrentEntry] = useState({});
   const [formData, setFormDataAdd] = useState(initialFormData);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [categories, setCategories] = useState(() => {
+    const saved = localStorage.getItem("Categories");
+    return saved ? JSON.parse(saved) : defaultCategories;
+  });
+
+  const addCategory = (newCat) => {
+    if (categories.some((c) => c.name.toLowerCase() === newCat.name.toLowerCase())) {
+      return;
+    }
+    const newCats = [...categories, newCat];
+    setCategories(newCats);
+    localStorage.setItem("Categories", JSON.stringify(newCats));
+  };
 
   // Helper function to check if a date matches an entry
   const doesDateMatchEntry = (entry, targetDate) => {
@@ -188,6 +211,8 @@ const HomePage = () => {
         addMultipleEntries,
         deleteMultipleEntries,
         getEntriesForDate,
+        categories,
+        addCategory,
       }}
     >
       <CurrentEntryContext.Provider value={{ currentEntry, setCurrentEntry }}>

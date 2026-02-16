@@ -12,7 +12,13 @@ const EntryDetails = ({ onEdit, onClose }) => {
       <div className={styles["details-header"]}>
         <h2>{currentEntry.subject}</h2>
         {currentEntry.type && (
-          <span className={styles["entry-type-badge"]}>
+          <span 
+            className={styles["entry-type-badge"]}
+            style={{ 
+              backgroundColor: currentEntry.color ? `${currentEntry.color}33` : undefined, // 33 is approx 20% opacity hex
+              color: currentEntry.color || undefined 
+            }}
+          >
             {currentEntry.type === "once" ? "One-time" : " Recurring"}
           </span>
         )}

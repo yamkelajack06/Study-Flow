@@ -6,6 +6,7 @@ const TimetableEntry = ({ entry, onOpenModal, getEntryData }) => {
     entry && (
       <div
         className={styles["timetable-entry"]}
+        style={{ backgroundColor: entry.color || "#447ff8" }}
         onClick={() => {
           onOpenModal();
           getEntryData(entry);

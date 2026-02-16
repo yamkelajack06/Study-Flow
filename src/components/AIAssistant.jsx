@@ -48,6 +48,16 @@ const AIAssistant = () => {
     setUserInput(e.target.value);
   };
 
+  // Helper to assign color based on context if AI didn't provide one
+  const assignColorContext = (subject) => {
+    const lower = subject.toLowerCase();
+    if (lower.includes("exam") || lower.includes("test") || lower.includes("quiz") || lower.includes("midterm")) return "#dc3545"; // Red
+    if (lower.includes("study") || lower.includes("revision") || lower.includes("review")) return "#10b981"; // Green
+    if (lower.includes("assignment") || lower.includes("project") || lower.includes("homework") || lower.includes("paper")) return "#f59e0b"; // Orange
+    if (lower.includes("lab") || lower.includes("workshop") || lower.includes("practical")) return "#8b5cf6"; // Purple
+    return "#447ff8"; // Blue (Default for classes/lectures)
+  };
+
   const handleSuccess = (AIResponse) => {
     try {
       let message;
@@ -60,7 +70,12 @@ const AIAssistant = () => {
 
       switch (AIResponse.action) {
         case "add": {
-          success = addEntries(AIResponse);
+          // Assign color if missing
+          const entryToAdd = {
+            ...AIResponse,
+            color: AIResponse.color || assignColorContext(AIResponse.subject)
+          };
+          success = addEntries(entryToAdd);
           if (success) {
             // Format message based on entry type
             if (AIResponse.type === "once") {
@@ -90,7 +105,13 @@ const AIAssistant = () => {
         }
 
         case "add_multiple": {
-          const addResults = addMultipleEntries(AIResponse.entries);
+          // Assign colors to all entries
+          const entriesWithColors = AIResponse.entries.map(entry => ({
+            ...entry,
+            color: entry.color || assignColorContext(entry.subject)
+          }));
+
+          const addResults = addMultipleEntries(entriesWithColors);
 
           if (addResults.successful.length === 0) {
             message = `Failed to add any entries. All had conflicts:\n\n`;

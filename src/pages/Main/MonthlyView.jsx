@@ -95,7 +95,7 @@ const MonthlyView = ({ currentDate }) => {
                         entry.type === "recurring" ? " - Recurring" : ""
                       }`}
                     >
-                      <span className={styles["entry-dot"]}>
+                      <span className={styles["entry-dot"]} style={{ color: entry.color || "#447ff8" }}>
                         •
                       </span>
                       <span className={styles["entry-subject"]}>
