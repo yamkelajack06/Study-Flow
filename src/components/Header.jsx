@@ -2,7 +2,7 @@ import addIcon from "../assets/add-icon.svg";
 import darkModeIcon from "../assets/moon-blue.svg";
 import styles from "../styles/header.module.css";
 import getFormattedDate from "../utils/formatedDate";
-import PrintTimetable from "../components/PrintTimetable"
+import PrintTimetable from "./Printtimetable"
 
 const Header = ({ onOpenModal }) => {
   const date = getFormattedDate();
