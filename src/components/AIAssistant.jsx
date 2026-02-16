@@ -49,128 +49,139 @@ const AIAssistant = () => {
   };
 
   const handleSuccess = (AIResponse) => {
-    let message;
-    let success;
+    try {
+      let message;
+      let success;
 
-    switch (AIResponse.action) {
-      case "add": {
-        success = addEntries(AIResponse);
-        if (success) {
-          // Format message based on entry type
-          if (AIResponse.type === "once") {
-            const dateObj = new Date(AIResponse.date);
-            const formattedDate = dateObj.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              year: "numeric"
-            });
-            message = `**${AIResponse.subject}** has been added successfully for ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
-          } else {
-            // Recurring entry
-            const recurrenceText = {
-              weekly: "every week",
-              biweekly: "every 2 weeks",
-              monthly: "every month"
-            }[AIResponse.recurrence] || "weekly";
-            
-            message = `**${AIResponse.subject}** has been added successfully for ${AIResponse.day}s (${recurrenceText}) from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
-          }
-        } else {
-          message = `Failed to add **${AIResponse.subject}**. There may be a time conflict.`;
-        }
-        return message;
+      // If no action is specified, return the message or a default response
+      if (!AIResponse.action || AIResponse.action === "chat") {
+        return AIResponse.message || "I processed your request.";
       }
 
-      case "add_multiple": {
-        const addResults = addMultipleEntries(AIResponse.entries);
-
-        if (addResults.successful.length === 0) {
-          message = `Failed to add any entries. All had conflicts:\n\n`;
-          addResults.failed.forEach((fail) => {
-            message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
-          });
-        } else if (addResults.failed.length === 0) {
-          message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
-          addResults.successful.forEach((entry) => {
-            if (entry.type === "once") {
-              const dateObj = new Date(entry.date);
+      switch (AIResponse.action) {
+        case "add": {
+          success = addEntries(AIResponse);
+          if (success) {
+            // Format message based on entry type
+            if (AIResponse.type === "once") {
+              const dateObj = new Date(AIResponse.date);
               const formattedDate = dateObj.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric"
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
               });
-              message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+              message = `**${AIResponse.subject}** has been added successfully for ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             } else {
-              message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+              // Recurring entry
+              const recurrenceText =
+                {
+                  weekly: "every week",
+                  biweekly: "every 2 weeks",
+                  monthly: "every month",
+                }[AIResponse.recurrence] || "weekly";
+
+              message = `**${AIResponse.subject}** has been added successfully for ${AIResponse.day}s (${recurrenceText}) from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             }
-          });
-        } else {
-          message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
-          message += `**Successful:**\n`;
-          addResults.successful.forEach((entry) => {
-            if (entry.type === "once") {
-              const dateObj = new Date(entry.date);
-              const formattedDate = dateObj.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric"
-              });
-              message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
-            } else {
-              message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
-            }
-          });
-          message += `\n**Failed:**\n`;
-          addResults.failed.forEach((fail) => {
-            message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
-          });
-        }
-        return message;
-      }
-
-      case "delete": {
-        success = deleteEntries(AIResponse);
-        if (success) {
-          message = `**${AIResponse.subject}** has been deleted successfully.`;
-        } else {
-          message = `Deletion was cancelled.`;
-        }
-        return message;
-      }
-
-      case "delete_multiple": {
-        const deleteResults = deleteMultipleEntries(AIResponse.entries);
-
-        if (deleteResults.deletedCount === deleteResults.requestedCount) {
-          message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
-        } else if (deleteResults.deletedCount === 0) {
-          message = `No entries were deleted. Could not find the specified entries.`;
-        } else {
-          message = `Deleted ${deleteResults.deletedCount} of ${deleteResults.requestedCount} requested entries.`;
-        }
-        return message;
-      }
-
-      case "update": {
-        success = updateEntries(AIResponse);
-        if (success) {
-          if (AIResponse.type === "once") {
-            const dateObj = new Date(AIResponse.date);
-            const formattedDate = dateObj.toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric"
-            });
-            message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
           } else {
-            message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+            message = `Failed to add **${AIResponse.subject}**. There may be a time conflict or invalid data.`;
           }
-        } else {
-          message = `Failed to update entry. There may be a time conflict with the new schedule.`;
+          return message;
         }
-        return message;
-      }
 
-      default:
-        return "Action completed.";
+        case "add_multiple": {
+          const addResults = addMultipleEntries(AIResponse.entries);
+
+          if (addResults.successful.length === 0) {
+            message = `Failed to add any entries. All had conflicts:\n\n`;
+            addResults.failed.forEach((fail) => {
+              message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
+            });
+          } else if (addResults.failed.length === 0) {
+            message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
+            addResults.successful.forEach((entry) => {
+              if (entry.type === "once") {
+                const dateObj = new Date(entry.date);
+                const formattedDate = dateObj.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+                message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+              } else {
+                message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+              }
+            });
+          } else {
+            message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
+            message += `**Successful:**\n`;
+            addResults.successful.forEach((entry) => {
+              if (entry.type === "once") {
+                const dateObj = new Date(entry.date);
+                const formattedDate = dateObj.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+                message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+              } else {
+                message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+              }
+            });
+            message += `\n**Failed:**\n`;
+            addResults.failed.forEach((fail) => {
+              message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
+            });
+          }
+          return message;
+        }
+
+        case "delete": {
+          success = deleteEntries(AIResponse);
+          if (success) {
+            message = `**${AIResponse.subject}** has been deleted successfully.`;
+          } else {
+            message = `I couldn't delete **${AIResponse.subject}**. It might not exist or the deletion was cancelled.`;
+          }
+          return message;
+        }
+
+        case "delete_multiple": {
+          const deleteResults = deleteMultipleEntries(AIResponse.entries);
+
+          if (deleteResults.deletedCount === deleteResults.requestedCount) {
+            message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
+          } else if (deleteResults.deletedCount === 0) {
+            message = `No entries were deleted. Could not find the specified entries.`;
+          } else {
+            message = `Deleted ${deleteResults.deletedCount} of ${deleteResults.requestedCount} requested entries.`;
+          }
+          return message;
+        }
+
+        case "update": {
+          success = updateEntries(AIResponse);
+          if (success) {
+            if (AIResponse.type === "once") {
+              const dateObj = new Date(AIResponse.date);
+              const formattedDate = dateObj.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+              });
+              message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+            } else {
+              message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+            }
+          } else {
+            message = `Failed to update entry. There may be a time conflict with the new schedule.`;
+          }
+          return message;
+        }
+
+        default:
+          return AIResponse.message || "I processed your request, but no specific timetable action was taken.";
+      }
+    } catch (error) {
+      console.error("Error in handleSuccess:", error);
+      return "I encountered an error while trying to update your timetable. Please try again.";
     }
   };
 
@@ -199,10 +210,12 @@ const AIAssistant = () => {
 
       setChatHistory((prevHistory) => [...prevHistory, aiMessage]);
     } else {
-      // Handle error display
+      console.error("AI Error:", response.message);
       const errorMessage = {
         role: "model",
-        parts: [{ text: `${response.message}` }],
+        parts: [{ 
+          text: "I'm sorry, I encountered an error while processing your request. Please try again." 
+        }],
       };
       setChatHistory((prevHistory) => [...prevHistory, errorMessage]);
     }
