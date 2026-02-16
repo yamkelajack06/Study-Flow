@@ -51,10 +51,32 @@ const AIAssistant = () => {
   // Helper to assign color based on context if AI didn't provide one
   const assignColorContext = (subject) => {
     const lower = subject.toLowerCase();
-    if (lower.includes("exam") || lower.includes("test") || lower.includes("quiz") || lower.includes("midterm")) return "#dc3545"; // Red
-    if (lower.includes("study") || lower.includes("revision") || lower.includes("review")) return "#10b981"; // Green
-    if (lower.includes("assignment") || lower.includes("project") || lower.includes("homework") || lower.includes("paper")) return "#f59e0b"; // Orange
-    if (lower.includes("lab") || lower.includes("workshop") || lower.includes("practical")) return "#8b5cf6"; // Purple
+    if (
+      lower.includes("exam") ||
+      lower.includes("test") ||
+      lower.includes("quiz") ||
+      lower.includes("midterm")
+    )
+      return "#dc3545"; // Red
+    if (
+      lower.includes("study") ||
+      lower.includes("revision") ||
+      lower.includes("review")
+    )
+      return "#10b981"; // Green
+    if (
+      lower.includes("assignment") ||
+      lower.includes("project") ||
+      lower.includes("homework") ||
+      lower.includes("paper")
+    )
+      return "#f59e0b"; // Orange
+    if (
+      lower.includes("lab") ||
+      lower.includes("workshop") ||
+      lower.includes("practical")
+    )
+      return "#8b5cf6"; // Purple
     return "#447ff8"; // Blue (Default for classes/lectures)
   };
 
@@ -73,7 +95,7 @@ const AIAssistant = () => {
           // Assign color if missing
           const entryToAdd = {
             ...AIResponse,
-            color: AIResponse.color || assignColorContext(AIResponse.subject)
+            color: AIResponse.color || assignColorContext(AIResponse.subject),
           };
           success = addEntries(entryToAdd);
           if (success) {
@@ -106,9 +128,9 @@ const AIAssistant = () => {
 
         case "add_multiple": {
           // Assign colors to all entries
-          const entriesWithColors = AIResponse.entries.map(entry => ({
+          const entriesWithColors = AIResponse.entries.map((entry) => ({
             ...entry,
-            color: entry.color || assignColorContext(entry.subject)
+            color: entry.color || assignColorContext(entry.subject),
           }));
 
           const addResults = addMultipleEntries(entriesWithColors);
@@ -198,7 +220,10 @@ const AIAssistant = () => {
         }
 
         default:
-          return AIResponse.message || "I processed your request, but no specific timetable action was taken.";
+          return (
+            AIResponse.message ||
+            "I processed your request, but no specific timetable action was taken."
+          );
       }
     } catch (error) {
       console.error("Error in handleSuccess:", error);
@@ -231,12 +256,17 @@ const AIAssistant = () => {
 
       setChatHistory((prevHistory) => [...prevHistory, aiMessage]);
     } else {
-      console.error("AI Error:", response.message);
+      console.error("AI Error/Chat:", response.message);
       const errorMessage = {
         role: "model",
-        parts: [{ 
-          text: "I'm sorry, I encountered an error while processing your request. Please try again." 
-        }],
+        parts: [
+          {
+            // Use the AI's actual text, fallback to generic error only if missing
+            text:
+              response.message ||
+              "I'm sorry, I encountered an error while processing your request. Please try again.",
+          },
+        ],
       };
       setChatHistory((prevHistory) => [...prevHistory, errorMessage]);
     }
