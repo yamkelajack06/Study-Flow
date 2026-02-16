@@ -14,6 +14,8 @@
     "@google/generative-ai": "^0.24.1",
     "@types/prompt-sync": "^4.2.3",
     "dotenv": "^17.2.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
     "lucide-react": "^0.546.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
