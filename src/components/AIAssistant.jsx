@@ -80,7 +80,7 @@ const AIAssistant = () => {
     return "#447ff8"; // Blue (Default for classes/lectures)
   };
 
-  const handleSuccess = (AIResponse) => {
+  const handleSuccess = async (AIResponse) => {
     try {
       let message;
       let success;
@@ -97,7 +97,7 @@ const AIAssistant = () => {
             ...AIResponse,
             color: AIResponse.color || assignColorContext(AIResponse.subject),
           };
-          success = addEntries(entryToAdd);
+          success = await addEntries(entryToAdd);
           if (success) {
             // Format message based on entry type
             if (AIResponse.type === "once") {
@@ -133,7 +133,7 @@ const AIAssistant = () => {
             color: entry.color || assignColorContext(entry.subject),
           }));
 
-          const addResults = addMultipleEntries(entriesWithColors);
+          const addResults = await addMultipleEntries(entriesWithColors);
 
           if (addResults.successful.length === 0) {
             message = `Failed to add any entries. All had conflicts:\n\n`;
@@ -178,7 +178,7 @@ const AIAssistant = () => {
         }
 
         case "delete": {
-          success = deleteEntries(AIResponse);
+          success = await deleteEntries(AIResponse);
           if (success) {
             message = `**${AIResponse.subject}** has been deleted successfully.`;
           } else {
@@ -188,7 +188,7 @@ const AIAssistant = () => {
         }
 
         case "delete_multiple": {
-          const deleteResults = deleteMultipleEntries(AIResponse.entries);
+          const deleteResults = await deleteMultipleEntries(AIResponse.entries);
 
           if (deleteResults.deletedCount === deleteResults.requestedCount) {
             message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
@@ -201,7 +201,7 @@ const AIAssistant = () => {
         }
 
         case "update": {
-          success = updateEntries(AIResponse);
+          success = await updateEntries(AIResponse);
           if (success) {
             if (AIResponse.type === "once") {
               const dateObj = new Date(AIResponse.date);
@@ -248,7 +248,7 @@ const AIAssistant = () => {
     const response = await GeminiAI(historyForAPI, entries);
     console.log("AI Response:", response);
     if (!response.error) {
-      const successMessage = handleSuccess(response);
+      const successMessage = await handleSuccess(response);
       const aiMessage = {
         role: "model",
         parts: [{ text: successMessage }],
