@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@firebase-oss/ui-react": "^7.0.2-beta",
+    "@firebase-oss/ui-styles": "^7.0.2-beta",
     "@google/genai": "^1.24.0",
     "@google/generative-ai": "^0.24.1",
     "@types/prompt-sync": "^4.2.3",
     "dotenv": "^17.2.3",
+    "firebase": "^12.9.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
     "lucide-react": "^0.546.0",

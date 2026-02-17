@@ -14,7 +14,7 @@ const LandingPage = () => {
     // Handle Google authentication
     // You'll implement Firebase auth here later
     // For now, also navigate to app
-    navigate('/app');
+    navigate('/signup');
   };
 
   return (
