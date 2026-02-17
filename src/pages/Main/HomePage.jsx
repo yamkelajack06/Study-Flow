@@ -4,6 +4,7 @@ import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
 import { validateEntryWithConflict } from "../../utils/confilctDetector";
+import { usePersistence } from "../../context/PersistenceContext";
 
 const EntryContext = createContext({});
 const CurrentEntryContext = createContext({});
@@ -26,20 +27,18 @@ const initialFormData = {
   startTime: "",
   endTime: "",
   notes: "",
-  type: "once", // "once" or "recurring"
-  recurrence: "weekly", // "weekly", "biweekly", "monthly"
+  type: "once",
+  recurrence: "weekly",
   id: "",
   category: "Lecture",
-  color: "#447ff8", // Default Blue
+  color: "#447ff8",
 };
 
 const HomePage = () => {
+  const { entries, addEntry, updateEntry, deleteEntry, loading } = usePersistence();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
-  const [entries, setEntries] = useState(() => {
-    const savedEntries = localStorage.getItem("Entries");
-    return savedEntries ? JSON.parse(savedEntries) : [];
-  });
   const [currentEntry, setCurrentEntry] = useState({});
   const [formData, setFormDataAdd] = useState(initialFormData);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -49,17 +48,15 @@ const HomePage = () => {
   });
 
   const addCategory = (newCat) => {
-    if (categories.some((c) => c.name.toLowerCase() === newCat.name.toLowerCase())) {
-      return;
-    }
+    if (categories.some((c) => c.name.toLowerCase() === newCat.name.toLowerCase())) return;
     const newCats = [...categories, newCat];
     setCategories(newCats);
     localStorage.setItem("Categories", JSON.stringify(newCats));
   };
 
-  // Helper function to check if a date matches an entry
+  // ─── Date helpers ────────────────────────────────────────────────────────────
+
   const doesDateMatchEntry = (entry, targetDate) => {
-    // For one-time entries, check exact date match
     if (entry.type === "once" && entry.date) {
       const entryDate = new Date(entry.date);
       return (
@@ -68,135 +65,132 @@ const HomePage = () => {
         entryDate.getDate() === targetDate.getDate()
       );
     }
-
-    // For recurring entries, check day name match
     if (entry.type === "recurring" || !entry.type) {
       const dayName = targetDate.toLocaleDateString("en-US", { weekday: "long" });
       return entry.day === dayName;
     }
-
     return false;
   };
 
-  // Filter entries for a specific date (used by Day/Month views)
-  const getEntriesForDate = (targetDate) => {
-    return entries.filter(entry => doesDateMatchEntry(entry, targetDate));
-  };
+  const getEntriesForDate = (targetDate) =>
+    entries.filter((entry) => doesDateMatchEntry(entry, targetDate));
 
-  const addEntries = (entry) => {
+  // ─── CRUD wrappers (keep same API the rest of the app expects) ───────────────
+
+  const addEntries = async (entry) => {
     const validation = validateEntryWithConflict(entries, entry, false);
-
     if (!validation.isValid) {
       alert(validation.message);
       return false;
-    } else {
-      const newEntries = [...entries, entry];
-      setEntries(newEntries);
-      localStorage.setItem("Entries", JSON.stringify(newEntries));
-      setFormDataAdd(initialFormData);
-      return true;
     }
+    const success = await addEntry(entry);
+    if (success) setFormDataAdd(initialFormData);
+    return success;
   };
 
-  const addMultipleEntries = (entriesArray) => {
-    const results = {
-      successful: [],
-      failed: [],
-    };
+  const addMultipleEntries = async (entriesArray) => {
+    const results = { successful: [], failed: [] };
 
-    entriesArray.forEach((entry) => {
+    for (const entry of entriesArray) {
       const entryWithId = {
         ...entry,
-        id: entry.type === "once" 
-          ? `${entry.subject}-${entry.date}-${entry.startTime}`
-          : `${entry.subject}-${entry.day}-${entry.startTime}`,
+        id:
+          entry.type === "once"
+            ? `${entry.subject}-${entry.date}-${entry.startTime}`
+            : `${entry.subject}-${entry.day}-${entry.startTime}`,
       };
 
       const validation = validateEntryWithConflict(entries, entryWithId, false);
-
       if (!validation.isValid) {
-        results.failed.push({
-          entry: entryWithId,
-          reason: validation.message,
-        });
+        results.failed.push({ entry: entryWithId, reason: validation.message });
       } else {
-        results.successful.push(entryWithId);
+        const success = await addEntry(entryWithId);
+        if (success) {
+          results.successful.push(entryWithId);
+        } else {
+          results.failed.push({ entry: entryWithId, reason: "Failed to save" });
+        }
       }
-    });
-
-    // Only add successful entries
-    if (results.successful.length > 0) {
-      const newEntries = [...entries, ...results.successful];
-      setEntries(newEntries);
-      localStorage.setItem("Entries", JSON.stringify(newEntries));
     }
 
     return results;
   };
 
-  const deleteEntries = (Entry) => {
+  const deleteEntries = async (entry) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this timetable entry? This action cannot be undone."
     );
-    if (confirm) {
-      const newEntries = entries.filter((entry) => entry.id !== Entry.id);
-      setEntries(newEntries);
-      localStorage.setItem("Entries", JSON.stringify(newEntries));
-      return true;
-    }
-    return false;
+    if (!confirm) return false;
+
+    // Firestore uses firestoreId; localStorage uses id
+    const idToDelete = entry.firestoreId || entry.id;
+    return await deleteEntry(idToDelete);
   };
 
-  const deleteMultipleEntries = (entriesArray) => {
-    const idsToDelete = entriesArray.map((entry) => entry.id);
-    const newEntries = entries.filter(
-      (entry) => !idsToDelete.includes(entry.id)
+  const deleteMultipleEntries = async (entriesArray) => {
+    let deletedCount = 0;
+    for (const entry of entriesArray) {
+      const idToDelete = entry.firestoreId || entry.id;
+      const success = await deleteEntry(idToDelete);
+      if (success) deletedCount++;
+    }
+    return { deletedCount, requestedCount: entriesArray.length };
+  };
+
+  const updateEntries = async (updatedEntry) => {
+    const oldId = updatedEntry.oldId || updatedEntry.id;
+    const existingEntry = entries.find(
+      (e) => (e.firestoreId || e.id) === oldId
     );
 
-    setEntries(newEntries);
-    localStorage.setItem("Entries", JSON.stringify(newEntries));
-
-    return {
-      deletedCount: entries.length - newEntries.length,
-      requestedCount: idsToDelete.length,
-    };
-  };
-
-  const updateEntries = (updatedEntry) => {
-    //Find the entry to update using id from A
-    const oldId = updatedEntry.oldId || updatedEntry.id;
-
-    // Check if entry exists
-    const existingEntry = entries.find((entry) => entry.id === oldId);
     if (!existingEntry) {
-      alert(`Could not find the entry to update. Please try again.`);
+      alert("Could not find the entry to update. Please try again.");
       return false;
     }
 
     const validation = validateEntryWithConflict(entries, updatedEntry, true);
-
     if (!validation.isValid) {
       alert(validation.message);
       return false;
-    } else {
-      // Generate new ID based on entry type
-      const newId = updatedEntry.type === "once"
-        ? `${updatedEntry.subject}-${updatedEntry.date}-${updatedEntry.startTime}`
-        : `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`;
-
-      const updatedEntries = entries.map((entry) =>
-        entry.id === oldId ? { ...updatedEntry, id: newId } : entry
-      );
-      setEntries(updatedEntries);
-      localStorage.setItem("Entries", JSON.stringify(updatedEntries));
-      return true;
     }
+
+    // Preserve the Firestore document ID so the strategy can find the doc
+    const entryToSave = {
+      ...updatedEntry,
+      firestoreId: existingEntry.firestoreId || existingEntry.id,
+      id:
+        updatedEntry.type === "once"
+          ? `${updatedEntry.subject}-${updatedEntry.date}-${updatedEntry.startTime}`
+          : `${updatedEntry.subject}-${updatedEntry.day}-${updatedEntry.startTime}`,
+    };
+
+    return await updateEntry(entryToSave);
   };
+
+  // ─── Modal helpers ───────────────────────────────────────────────────────────
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
   const handleOpenEntryModal = () => setIsEditEntryOpen(true);
   const handleCloseOpenEntryModal = () => setIsEditEntryOpen(false);
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "1.8rem",
+          color: "#447ff8",
+          fontFamily: "sans-serif",
+        }}
+      >
+        Loading your timetable…
+      </div>
+    );
+  }
 
   return (
     <EntryContext.Provider

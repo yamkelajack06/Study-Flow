@@ -1,64 +1,134 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import { LocalStrategy } from '../persistence/localStrategy';
+import { createContext, useState, useEffect, useContext, useRef } from 'react';
+import * as LocalStrategy from '../persistence/localStrategy';
 import { FirebaseStrategy } from '../persistence/firebaseStrategy';
 import { useAuth } from './AuthContext';
 
 const PersistenceContext = createContext();
 
-export const usePersistence = () => {
-    return useContext(PersistenceContext);
-};
+export const usePersistence = () => useContext(PersistenceContext);
 
 export const PersistenceProvider = ({ children }) => {
-    const { currentUser } = useAuth();
-    const [strategy, setStrategy] = useState(() => LocalStrategy);
-    const [entries, setEntries] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // Keep a ref to the current strategy so async callbacks use the latest one
+  const strategyRef = useRef(null);
 
-    useEffect(() => {
-        const newStrategy = currentUser ? new FirebaseStrategy(currentUser.uid) : new LocalStrategy();
-        setStrategy(newStrategy);
-    }, [currentUser]);
+  // ─── Bootstrap: switch strategy & load entries whenever auth changes ───────
+  useEffect(() => {
+    const bootstrap = async () => {
+      setLoading(true);
 
-    useEffect(() => {
-        const loadEntries = async () => {
-            setLoading(true);
-            const loadedEntries = await strategy.getEntries();
-            setEntries(loadedEntries);
-            setLoading(false);
-        };
-        loadEntries();
-    }, [strategy]);
+      if (currentUser) {
+        const firebaseStrategy = new FirebaseStrategy(currentUser.uid);
+        strategyRef.current = firebaseStrategy;
 
-    const addEntry = async (entry) => {
-        await strategy.addEntry(entry);
-        const loadedEntries = await strategy.getEntries();
-        setEntries(loadedEntries);
+        // Check if there are local entries to migrate
+        const localEntries = await LocalStrategy.getEntries();
+        const cloudEntries = await firebaseStrategy.getEntries();
+
+        if (localEntries.length > 0 && cloudEntries.length === 0) {
+          // First sign-in: migrate local data to Firestore
+          const migrated = await firebaseStrategy.migrateFromLocal(localEntries);
+          await LocalStrategy.clearEntries();
+          setEntries(migrated);
+        } else {
+          setEntries(cloudEntries);
+        }
+      } else {
+        // Logged out → use localStorage
+        strategyRef.current = null;
+        const local = await LocalStrategy.getEntries();
+        setEntries(local);
+      }
+
+      setLoading(false);
     };
 
-    const updateEntry = async (entry) => {
-        await strategy.updateEntry(entry);
-        const loadedEntries = await strategy.getEntries();
-        setEntries(loadedEntries);
-    };
+    bootstrap();
+  }, [currentUser]);
 
-    const deleteEntry = async (entryId) => {
-        await strategy.deleteEntry(entryId);
-        const loadedEntries = await strategy.getEntries();
-        setEntries(loadedEntries);
-    };
+  // ─── CRUD operations ────────────────────────────────────────────────────────
 
-    const value = {
-        entries,
-        loading,
-        addEntry,
-        updateEntry,
-        deleteEntry,
-    };
+  const addEntry = async (entry) => {
+    if (strategyRef.current) {
+      // Firestore
+      try {
+        const saved = await strategyRef.current.addEntry(entry);
+        setEntries((prev) => [...prev, saved]);
+        return true;
+      } catch {
+        return false;
+      }
+    } else {
+      // localStorage
+      const updated = await LocalStrategy.addEntry(entries, entry);
+      if (updated) {
+        setEntries(updated);
+        return true;
+      }
+      return false;
+    }
+  };
 
-    return (
-        <PersistenceContext.Provider value={value}>
-            {children}
-        </PersistenceContext.Provider>
-    );
+  const updateEntry = async (entry) => {
+    if (strategyRef.current) {
+      try {
+        const updated = await strategyRef.current.updateEntry(entry);
+        setEntries((prev) =>
+          prev.map((e) =>
+            (e.firestoreId || e.id) === (updated.firestoreId || updated.id)
+              ? updated
+              : e
+          )
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    } else {
+      const updated = await LocalStrategy.updateEntry(entries, entry);
+      if (updated) {
+        setEntries(updated);
+        return true;
+      }
+      return false;
+    }
+  };
+
+  const deleteEntry = async (entryId) => {
+    if (strategyRef.current) {
+      try {
+        await strategyRef.current.deleteEntry(entryId);
+        setEntries((prev) =>
+          prev.filter((e) => (e.firestoreId || e.id) !== entryId)
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    } else {
+      const updated = await LocalStrategy.deleteEntry(entries, entryId);
+      if (updated) {
+        setEntries(updated);
+        return true;
+      }
+      return false;
+    }
+  };
+
+  const value = {
+    entries,
+    loading,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+    isCloud: !!currentUser,
+  };
+
+  return (
+    <PersistenceContext.Provider value={value}>
+      {children}
+    </PersistenceContext.Provider>
+  );
 };
