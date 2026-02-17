@@ -1,0 +1,151 @@
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafc;
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+}
+
+/* Centred card */
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 4rem 5rem;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(68, 127, 248, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(68, 127, 248, 0.15);
+  min-width: 280px;
+  text-align: center;
+}
+
+.logo-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The rotating border ring */
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #447ff8;
+  border-right-color: #3b82f6;
+  animation: spin 0.9s linear infinite;
+}
+
+/* Faint track behind the ring */
+.ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 3px solid rgba(68, 127, 248, 0.12);
+}
+
+/* Calendar icon centred inside the ring */
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.app-name {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.dot-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  height: 1rem;
+}
+
+.dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #447ff8;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+  background: #3b82f6;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+  background: #60a5fa;
+}
+
+.loading-message {
+  font-size: 1.5rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(0.92); opacity: 0.85; }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0);      opacity: 0.6; }
+  40%           { transform: translateY(-6px);    opacity: 1;   }
+}
+
+@media (max-width: 480px) {
+  .loading-card {
+    padding: 3rem 3.5rem;
+    min-width: 240px;
+  }
+
+  .app-name {
+    font-size: 1.9rem;
+  }
+
+  .logo-ring {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .loading-message {
+    font-size: 1.4rem;
+  }
+}

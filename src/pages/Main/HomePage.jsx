@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
+import LoadingScreen from "../../components/LoadingScreen";
 import { validateEntryWithConflict } from "../../utils/confilctDetector";
 import { usePersistence } from "../../context/PersistenceContext";
 
@@ -54,7 +55,7 @@ const HomePage = () => {
     localStorage.setItem("Categories", JSON.stringify(newCats));
   };
 
-  // ─── Date helpers ────────────────────────────────────────────────────────────
+  // ─── Date helpers ─────────────────────────────────────────────────────────
 
   const doesDateMatchEntry = (entry, targetDate) => {
     if (entry.type === "once" && entry.date) {
@@ -75,7 +76,7 @@ const HomePage = () => {
   const getEntriesForDate = (targetDate) =>
     entries.filter((entry) => doesDateMatchEntry(entry, targetDate));
 
-  // ─── CRUD wrappers (keep same API the rest of the app expects) ───────────────
+  // ─── CRUD wrappers ────────────────────────────────────────────────────────
 
   const addEntries = async (entry) => {
     const validation = validateEntryWithConflict(entries, entry, false);
@@ -122,7 +123,6 @@ const HomePage = () => {
     );
     if (!confirm) return false;
 
-    // Firestore uses firestoreId; localStorage uses id
     const idToDelete = entry.firestoreId || entry.id;
     return await deleteEntry(idToDelete);
   };
@@ -154,7 +154,6 @@ const HomePage = () => {
       return false;
     }
 
-    // Preserve the Firestore document ID so the strategy can find the doc
     const entryToSave = {
       ...updatedEntry,
       firestoreId: existingEntry.firestoreId || existingEntry.id,
@@ -167,29 +166,17 @@ const HomePage = () => {
     return await updateEntry(entryToSave);
   };
 
-  // ─── Modal helpers ───────────────────────────────────────────────────────────
+  // ─── Modal helpers ────────────────────────────────────────────────────────
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
   const handleOpenEntryModal = () => setIsEditEntryOpen(true);
   const handleCloseOpenEntryModal = () => setIsEditEntryOpen(false);
 
+  // ─── Loading state ────────────────────────────────────────────────────────
+
   if (loading) {
-    return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "1.8rem",
-          color: "#447ff8",
-          fontFamily: "sans-serif",
-        }}
-      >
-        Loading your timetable…
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
