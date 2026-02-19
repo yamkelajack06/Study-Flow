@@ -23,11 +23,11 @@ import rehypeHighlight from "rehype-highlight";
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userInput, setUserInput] = useState("");
-  const [userChatHistory, setChatHistory] = useState([]); //For tracking user chat history
-  const [isChatting, setIsChatting] = useState(false); //For handling the chat window UI;
+  const [userChatHistory, setChatHistory] = useState([]);
+  const [isChatting, setIsChatting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const inputRef = useRef(null); //For clearing the textarea
-  const chatContainerRef = useRef(null); // for auto scroll to latest message
+  const inputRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const {
     entries,
     addEntries,
@@ -42,7 +42,7 @@ const AIAssistant = () => {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [userChatHistory]); // Trigger when messages change
+  }, [userChatHistory]);
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);
@@ -57,27 +57,27 @@ const AIAssistant = () => {
       lower.includes("quiz") ||
       lower.includes("midterm")
     )
-      return "#dc3545"; // Red
+      return "#dc3545";
     if (
       lower.includes("study") ||
       lower.includes("revision") ||
       lower.includes("review")
     )
-      return "#10b981"; // Green
+      return "#10b981";
     if (
       lower.includes("assignment") ||
       lower.includes("project") ||
       lower.includes("homework") ||
       lower.includes("paper")
     )
-      return "#f59e0b"; // Orange
+      return "#f59e0b";
     if (
       lower.includes("lab") ||
       lower.includes("workshop") ||
       lower.includes("practical")
     )
-      return "#8b5cf6"; // Purple
-    return "#447ff8"; // Blue (Default for classes/lectures)
+      return "#8b5cf6";
+    return "#447ff8";
   };
 
   const handleSuccess = async (AIResponse) => {
@@ -85,21 +85,18 @@ const AIAssistant = () => {
       let message;
       let success;
 
-      // If no action is specified, return the message or a default response
       if (!AIResponse.action || AIResponse.action === "chat") {
-        return AIResponse.message || "I processed your request.";
+        return AIResponse.message || "Done! Let me know if there's anything else.";
       }
 
       switch (AIResponse.action) {
         case "add": {
-          // Assign color if missing
           const entryToAdd = {
             ...AIResponse,
             color: AIResponse.color || assignColorContext(AIResponse.subject),
           };
           success = await addEntries(entryToAdd);
           if (success) {
-            // Format message based on entry type
             if (AIResponse.type === "once") {
               const dateObj = new Date(AIResponse.date);
               const formattedDate = dateObj.toLocaleDateString("en-US", {
@@ -108,26 +105,23 @@ const AIAssistant = () => {
                 day: "numeric",
                 year: "numeric",
               });
-              message = `**${AIResponse.subject}** has been added successfully for ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+              message = `**${AIResponse.subject}** has been added for ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             } else {
-              // Recurring entry
               const recurrenceText =
                 {
                   weekly: "every week",
                   biweekly: "every 2 weeks",
                   monthly: "every month",
-                }[AIResponse.recurrence] || "weekly";
-
-              message = `**${AIResponse.subject}** has been added successfully for ${AIResponse.day}s (${recurrenceText}) from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+                }[AIResponse.recurrence] || "every week";
+              message = `**${AIResponse.subject}** has been added for ${AIResponse.day}s (${recurrenceText}) from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             }
           } else {
-            message = `Failed to add **${AIResponse.subject}**. There may be a time conflict or invalid data.`;
+            message = `Couldn't add **${AIResponse.subject}** — it looks like that slot is already taken. Want to try a different time?`;
           }
           return message;
         }
 
         case "add_multiple": {
-          // Assign colors to all entries
           const entriesWithColors = AIResponse.entries.map((entry) => ({
             ...entry,
             color: entry.color || assignColorContext(entry.subject),
@@ -136,12 +130,12 @@ const AIAssistant = () => {
           const addResults = await addMultipleEntries(entriesWithColors);
 
           if (addResults.successful.length === 0) {
-            message = `Failed to add any entries. All had conflicts:\n\n`;
+            message = `Couldn't add any of those — all had time conflicts with existing entries:\n\n`;
             addResults.failed.forEach((fail) => {
               message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
             });
           } else if (addResults.failed.length === 0) {
-            message = `Successfully added all ${addResults.successful.length} entries:\n\n`;
+            message = `Added all ${addResults.successful.length} entries successfully!\n\n`;
             addResults.successful.forEach((entry) => {
               if (entry.type === "once") {
                 const dateObj = new Date(entry.date);
@@ -149,14 +143,14 @@ const AIAssistant = () => {
                   month: "short",
                   day: "numeric",
                 });
-                message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+                message += `- **${entry.subject}** — ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
               } else {
-                message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+                message += `- **${entry.subject}** — ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
               }
             });
           } else {
             message = `Added ${addResults.successful.length} of ${AIResponse.entries.length} entries:\n\n`;
-            message += `**Successful:**\n`;
+            message += `**Added:**\n`;
             addResults.successful.forEach((entry) => {
               if (entry.type === "once") {
                 const dateObj = new Date(entry.date);
@@ -164,12 +158,12 @@ const AIAssistant = () => {
                   month: "short",
                   day: "numeric",
                 });
-                message += `- **${entry.subject}** - ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
+                message += `- **${entry.subject}** — ${formattedDate} (${entry.startTime} - ${entry.endTime})\n`;
               } else {
-                message += `- **${entry.subject}** - ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
+                message += `- **${entry.subject}** — ${entry.day} (${entry.startTime} - ${entry.endTime})\n`;
               }
             });
-            message += `\n**Failed:**\n`;
+            message += `\n**Skipped due to conflicts:**\n`;
             addResults.failed.forEach((fail) => {
               message += `- **${fail.entry.subject}**: ${fail.reason}\n`;
             });
@@ -180,22 +174,23 @@ const AIAssistant = () => {
         case "delete": {
           success = await deleteEntries(AIResponse);
           if (success) {
-            message = `**${AIResponse.subject}** has been deleted successfully.`;
+            message = `**${AIResponse.subject}** has been removed from your schedule.`;
           } else {
-            message = `I couldn't delete **${AIResponse.subject}**. It might not exist or the deletion was cancelled.`;
+            message = `Couldn't remove **${AIResponse.subject}** — it may have already been deleted, or you cancelled.`;
           }
           return message;
         }
 
         case "delete_multiple": {
-          const deleteResults = await deleteMultipleEntries(AIResponse.entries);
+          // Use actual results from the operation — never trust AI-reported counts
+          const deleteResults = await deleteMultipleEntries(AIResponse);
 
-          if (deleteResults.deletedCount === deleteResults.requestedCount) {
-            message = `Successfully deleted ${deleteResults.deletedCount} entries.`;
-          } else if (deleteResults.deletedCount === 0) {
-            message = `No entries were deleted. Could not find the specified entries.`;
+          if (deleteResults.deletedCount === 0) {
+            message = `Nothing was removed — those entries may have already been deleted. Try refreshing if something looks off!`;
+          } else if (deleteResults.deletedCount === deleteResults.requestedCount) {
+            message = `Done! ${deleteResults.deletedCount} ${deleteResults.deletedCount === 1 ? "entry" : "entries"} removed from your schedule.`;
           } else {
-            message = `Deleted ${deleteResults.deletedCount} of ${deleteResults.requestedCount} requested entries.`;
+            message = `Removed ${deleteResults.deletedCount} of ${deleteResults.requestedCount} entries. A few couldn't be deleted — try tapping on them directly to remove them.`;
           }
           return message;
         }
@@ -209,12 +204,12 @@ const AIAssistant = () => {
                 month: "long",
                 day: "numeric",
               });
-              message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+              message = `Updated! **${AIResponse.subject}** is now on ${formattedDate} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             } else {
-              message = `Entry has been updated successfully to: **${AIResponse.subject}** on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
+              message = `Updated! **${AIResponse.subject}** is now on ${AIResponse.day} from ${AIResponse.startTime} to ${AIResponse.endTime}.`;
             }
           } else {
-            message = `Failed to update entry. There may be a time conflict with the new schedule.`;
+            message = `Couldn't update that entry — the new time might clash with something else in your schedule.`;
           }
           return message;
         }
@@ -222,12 +217,12 @@ const AIAssistant = () => {
         default:
           return (
             AIResponse.message ||
-            "I processed your request, but no specific timetable action was taken."
+            "Done! Let me know if there's anything else you'd like to change."
           );
       }
     } catch (error) {
       console.error("Error in handleSuccess:", error);
-      return "I encountered an error while trying to update your timetable. Please try again.";
+      return "Something went wrong on my end — please try that again!";
     }
   };
 
@@ -235,7 +230,7 @@ const AIAssistant = () => {
     setIsChatting(true);
     setIsLoading(true);
     e.preventDefault();
-    //Push the latest prompt to history before passing it to the AI
+
     const currentInput = userInput.trim();
     const userMessage = {
       role: "user",
@@ -243,36 +238,36 @@ const AIAssistant = () => {
     };
 
     const historyForAPI = [...userChatHistory, userMessage];
-
     setChatHistory(historyForAPI);
+
     const response = await GeminiAI(historyForAPI, entries);
     console.log("AI Response:", response);
+
     if (!response.error) {
       const successMessage = await handleSuccess(response);
       const aiMessage = {
         role: "model",
         parts: [{ text: successMessage }],
       };
-
       setChatHistory((prevHistory) => [...prevHistory, aiMessage]);
     } else {
-      console.error("AI Error/Chat:", response.message);
-      const errorMessage = {
+      // error: true carries conversational AI messages (clarifying questions,
+      // chat replies, or plain-English error descriptions from the AI itself)
+      const aiMessage = {
         role: "model",
         parts: [
           {
-            // Use the AI's actual text, fallback to generic error only if missing
             text:
               response.message ||
-              "I'm sorry, I encountered an error while processing your request. Please try again.",
+              "Something went wrong — please try again!",
           },
         ],
       };
-      setChatHistory((prevHistory) => [...prevHistory, errorMessage]);
+      setChatHistory((prevHistory) => [...prevHistory, aiMessage]);
     }
 
     setIsLoading(false);
-    if (inputRef.current) inputRef.current.value = ""; //Clear the text area
+    if (inputRef.current) inputRef.current.value = "";
     setUserInput("");
   };
 
@@ -290,7 +285,6 @@ const AIAssistant = () => {
         <Sparkles size={28} strokeWidth={2.5} />
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
         <div className={styles["chat-window"]}>
           {/* Header */}
@@ -324,7 +318,6 @@ const AIAssistant = () => {
                 <p className={styles["empty-text"]}>
                   Try asking me to add an entry or check your schedule.
                 </p>
-
                 <div className={styles["suggestions"]}>
                   <button>Add exam on March 5th</button>
                   <button>Add recurring class</button>
@@ -332,7 +325,7 @@ const AIAssistant = () => {
                   <button>Delete an entry</button>
                 </div>
               </div>
-            )}{" "}
+            )}
             {isChatting && (
               <div className={styles["conversation"]}>
                 <ChatMessages messages={userChatHistory} />
@@ -353,6 +346,12 @@ const AIAssistant = () => {
               placeholder="Ask me anything about your timetable..."
               className={styles["chat-input"]}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               value={userInput}
             ></textarea>
             <button type="submit" className={styles["send-button"]}>
