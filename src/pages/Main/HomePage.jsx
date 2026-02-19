@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Timetable from "../../components/Timetable";
 import Modal from "../../components/Modal";
 import EditEntry from "../../components/EditEntryModal";
-import LoadingScreen from "../../components/LoadingScreen";
+import LoadingScreen from "../../components/Loadingscreen";
 import { validateEntryWithConflict } from "../../utils/confilctDetector";
 import { usePersistence } from "../../context/PersistenceContext";
 
@@ -55,8 +55,6 @@ const HomePage = () => {
     localStorage.setItem("Categories", JSON.stringify(newCats));
   };
 
-  // ─── Date helpers ─────────────────────────────────────────────────────────
-
   const doesDateMatchEntry = (entry, targetDate) => {
     if (entry.type === "once" && entry.date) {
       const entryDate = new Date(entry.date);
@@ -75,8 +73,6 @@ const HomePage = () => {
 
   const getEntriesForDate = (targetDate) =>
     entries.filter((entry) => doesDateMatchEntry(entry, targetDate));
-
-  // ─── CRUD wrappers ────────────────────────────────────────────────────────
 
   const addEntries = async (entry) => {
     const validation = validateEntryWithConflict(entries, entry, false);
@@ -194,14 +190,11 @@ const HomePage = () => {
     return await updateEntry(entryToSave);
   };
 
-  // ─── Modal helpers ────────────────────────────────────────────────────────
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
   const handleOpenEntryModal = () => setIsEditEntryOpen(true);
   const handleCloseOpenEntryModal = () => setIsEditEntryOpen(false);
-
-  // ─── Loading state ────────────────────────────────────────────────────────
 
   if (loading) {
     return <LoadingScreen />;
