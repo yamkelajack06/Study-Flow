@@ -49,7 +49,8 @@ const LandingPage = () => {
           <div className={styles.ctaContainer}>
             <button
               className={`${styles.ctaButton} ${styles.primary}`}
-              onClick={handleLoginWithGoogle}
+              //This should navigate to the signin page
+              onClick={() => navigate('/signup')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

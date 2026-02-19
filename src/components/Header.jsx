@@ -4,16 +4,18 @@ import styles from "../styles/header.module.css";
 import getFormattedDate from "../utils/formatedDate";
 import PrintTimetable from "./Printtimetable";
 import { useAuth } from "../context/AuthContext";
-import { LogOut } from "lucide-react";
+import { LogOut, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const Header = ({ onOpenModal }) => {
   const date = getFormattedDate();
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      // AuthContext + PersistenceContext will handle the state reset
       window.location.href = "/";
     } catch (err) {
       console.error("Logout failed:", err);
@@ -55,10 +57,9 @@ const Header = ({ onOpenModal }) => {
             </button>
           </div>
 
-          {/* User section — only shown when logged in */}
-          {currentUser && (
+          {currentUser ? (
+            /* ── Logged-in: avatar + sign out ── */
             <div className={styles["user-section"]}>
-              {/* Avatar */}
               {currentUser.photoURL ? (
                 <img
                   src={currentUser.photoURL}
@@ -72,7 +73,6 @@ const Header = ({ onOpenModal }) => {
                 </div>
               )}
 
-              {/* Logout button */}
               <button
                 className={styles["logout-btn"]}
                 onClick={handleLogout}
@@ -81,6 +81,19 @@ const Header = ({ onOpenModal }) => {
               >
                 <LogOut size={16} strokeWidth={2} />
                 <span>Sign out</span>
+              </button>
+            </div>
+          ) : (
+            /* ── Guest: sign-in button ── */
+            <div className={styles["user-section"]}>
+              <button
+                className={styles["login-btn"]}
+                onClick={() => navigate("/signin")}
+                title="Sign in"
+                aria-label="Sign in"
+              >
+                <LogIn size={16} strokeWidth={2} />
+                <span>Sign in</span>
               </button>
             </div>
           )}
