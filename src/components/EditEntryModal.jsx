@@ -7,7 +7,7 @@ import { validateTimeOrder } from "../utils/validateTime";
 
 const EditEntryModal = ({ onClose }) => {
   const { currentEntry } = useContext(CurrentEntryContext);
-  const { updateEntries, categories, addCategory } = useContext(EntryContext);
+  const { updateEntries, deleteEntries, categories, addCategory } = useContext(EntryContext);
 
   const [formDataEdit, setFormDataEdit] = useState({
     subject: "",
@@ -51,6 +51,7 @@ const EditEntryModal = ({ onClose }) => {
         type: currentEntry.type || "recurring",
         recurrence: currentEntry.recurrence || "weekly",
         id: currentEntry.id || "",
+        firestoreId: currentEntry.firestoreId || "",
         category: currentEntry.category || "Lecture",
         color: currentEntry.color || "#447ff8",
       });
@@ -82,6 +83,12 @@ const EditEntryModal = ({ onClose }) => {
         }));
       }
     }
+  };
+
+  const handleDelete = async () => {
+    // Pass the full currentEntry so deleteEntries can resolve the correct ID
+    const success = await deleteEntries(currentEntry);
+    if (success) onClose();
   };
 
   const handleSubmit = (e) => {
@@ -311,6 +318,13 @@ const EditEntryModal = ({ onClose }) => {
                 className={styles["cancel-btn"]}
               >
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className={styles["delete-button"]}
+              >
+                Delete
               </button>
               <button type="submit" className={styles["submit-btn"]}>
                 Update

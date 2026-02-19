@@ -1,4 +1,5 @@
-//Takes in the state extracts the details of the state and then concatenates it with the instructions
+// src/utils/aiUtils.js
+
 function formatState(state) {
   if (!Array.isArray(state) || state.length === 0) {
     return "\nCurrent timetable is empty.\n";
@@ -7,8 +8,9 @@ function formatState(state) {
   const entryStrings = state.map((entry) => {
     const {
       id = "N/A",
+      firestoreId = null,       // ← expose firestoreId when present
       subject = "N/A",
-      type = "recurring", // Default to recurring for legacy entries
+      type = "recurring",
       day = "N/A",
       date = null,
       startTime = "N/A",
@@ -17,9 +19,11 @@ function formatState(state) {
       notes = "",
     } = entry;
 
-    // Format based on entry type
+    // The deletable ID is firestoreId when available, otherwise id
+    const deletableId = firestoreId || id;
+
     if (type === "once" && date) {
-      return `- ID: ${id}
+      return `- ID: ${deletableId}
   Type: One-time entry
   Subject: ${subject}
   Date: ${date}
@@ -28,8 +32,7 @@ function formatState(state) {
   End Time: ${endTime}
   Notes: ${notes || "(none)"}`;
     } else {
-      // Recurring entry
-      return `- ID: ${id}
+      return `- ID: ${deletableId}
   Type: Recurring entry
   Subject: ${subject}
   Day: ${day}
@@ -45,21 +48,19 @@ function formatState(state) {
 
 function cleanAIResponse(response) {
   if (!response) return null;
-
   if (typeof response === "object") return response;
 
-  let cleaned = response.trim().replace(/```(?:json)?\s*/g, "");
+  let cleaned = response.trim().replace(/```(?:json)?\s*/g, "").replace(/```/g, "");
 
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
-    console.error(error);
+  } catch {
+    // Try to extract a JSON object from within the text
     const match = cleaned.match(/\{[\s\S]*\}/);
     if (match) {
       try {
         return JSON.parse(match[0]);
-      } catch (e) {
-        console.error(e);
+      } catch {
         return null;
       }
     }
@@ -68,7 +69,6 @@ function cleanAIResponse(response) {
 }
 
 function parseResponse(text) {
-  //If the AI responds with a valid object return the object
   const cleaned = cleanAIResponse(text);
 
   if (
@@ -76,67 +76,60 @@ function parseResponse(text) {
     typeof cleaned === "object" &&
     ["add", "update", "delete", "view", "delete_multiple", "add_multiple"].includes(cleaned.action)
   ) {
-    // Validate entry structure based on type
     if (cleaned.action === "add") {
-      // Ensure proper fields based on type
       if (cleaned.type === "once") {
         if (!cleaned.date) {
-          return {
-            error: true,
-            message: "One-time entries require a date field"
-          };
+          return { error: true, message: "One-time entries require a date field" };
         }
-        // Set day from date if not present
         if (!cleaned.day && cleaned.date) {
           const dateObj = new Date(cleaned.date);
           cleaned.day = dateObj.toLocaleDateString("en-US", { weekday: "long" });
         }
       } else if (cleaned.type === "recurring") {
         if (!cleaned.day) {
-          return {
-            error: true,
-            message: "Recurring entries require a day field"
-          };
+          return { error: true, message: "Recurring entries require a day field" };
         }
-        if (!cleaned.recurrence) {
-          cleaned.recurrence = "weekly"; // Default
-        }
+        if (!cleaned.recurrence) cleaned.recurrence = "weekly";
       }
     }
 
     if (cleaned.action === "add_multiple" && Array.isArray(cleaned.entries)) {
-      // Validate each entry
       cleaned.entries = cleaned.entries.map(entry => {
         if (entry.type === "once") {
-          if (!entry.date) {
-            console.warn("Skipping entry without date:", entry);
-            return null;
-          }
-          // Set day from date if not present
+          if (!entry.date) { console.warn("Skipping entry without date:", entry); return null; }
           if (!entry.day && entry.date) {
             const dateObj = new Date(entry.date);
             entry.day = dateObj.toLocaleDateString("en-US", { weekday: "long" });
           }
-          if (!entry.recurrence) {
-            entry.recurrence = "none";
-          }
-        } else if (entry.type === "recurring" || !entry.type) {
-          if (!entry.day) {
-            console.warn("Skipping recurring entry without day:", entry);
-            return null;
-          }
-          if (!entry.recurrence) {
-            entry.recurrence = "weekly";
-          }
-          entry.type = "recurring"; // Ensure type is set
+          if (!entry.recurrence) entry.recurrence = "none";
+        } else {
+          if (!entry.day) { console.warn("Skipping recurring entry without day:", entry); return null; }
+          if (!entry.recurrence) entry.recurrence = "weekly";
+          entry.type = "recurring";
         }
         return entry;
-      }).filter(Boolean); // Remove null entries
+      }).filter(Boolean);
+    }
+
+    // ── Validate delete IDs — reject "N/A" before they reach Firebase ──
+    if (cleaned.action === "delete") {
+      if (!cleaned.id || cleaned.id === "N/A") {
+        return { error: true, message: "I couldn't find a valid ID for that entry. Please try again or delete it manually." };
+      }
+    }
+
+    if (cleaned.action === "delete_multiple" && Array.isArray(cleaned.entries)) {
+      const validEntries = cleaned.entries.filter(e => e.id && e.id !== "N/A");
+      if (validEntries.length === 0) {
+        return { error: true, message: "I couldn't find valid IDs for those entries. Try refreshing and asking again." };
+      }
+      cleaned.entries = validEntries;
     }
 
     return cleaned;
   }
 
+  // Not JSON / not an action → return null so AIAssistant treats it as conversational text
   return null;
 }
 

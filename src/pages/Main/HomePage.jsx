@@ -128,10 +128,38 @@ const HomePage = () => {
   };
 
   const deleteMultipleEntries = async (entriesArray) => {
+    // Match each requested entry against actual entries in state to get valid IDs
+    const resolvedEntries = [];
+
+    for (const requested of entriesArray) {
+      // Try to find the matching entry in the current entries list
+      const match = entries.find((e) => {
+        const eId = e.firestoreId || e.id;
+        const rId = requested.firestoreId || requested.id;
+        // Match by firestoreId/id first, then fall back to subject+day+time
+        if (eId && rId && eId !== 'N/A' && rId !== 'N/A' && eId === rId) return true;
+        return (
+          e.subject === requested.subject &&
+          e.day === requested.day &&
+          e.startTime === requested.startTime
+        );
+      });
+
+      if (match) {
+        const validId = match.firestoreId || match.id;
+        if (validId && validId !== 'N/A') {
+          resolvedEntries.push({ ...match, _resolvedId: validId });
+        }
+      }
+    }
+
+    if (resolvedEntries.length === 0) {
+      return { deletedCount: 0, requestedCount: entriesArray.length };
+    }
+
     let deletedCount = 0;
-    for (const entry of entriesArray) {
-      const idToDelete = entry.firestoreId || entry.id;
-      const success = await deleteEntry(idToDelete);
+    for (const entry of resolvedEntries) {
+      const success = await deleteEntry(entry._resolvedId);
       if (success) deletedCount++;
     }
     return { deletedCount, requestedCount: entriesArray.length };

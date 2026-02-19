@@ -54,6 +54,15 @@ export class FirebaseStrategy {
 
   async deleteEntry(entryId) {
     try {
+      // Guard against invalid IDs (e.g. legacy local entries with id "N/A" or
+      // composite ids that contain slashes — these would make Firestore paths invalid)
+      if (!entryId || entryId === 'N/A' || String(entryId).includes('/')) {
+        throw new Error(
+          `Invalid Firestore document ID: "${entryId}". ` +
+          `This entry may have been created locally before sign-in. ` +
+          `Please refresh and try again.`
+        );
+      }
       const entryRef = doc(db, 'users', this.userId, 'entries', entryId);
       await deleteDoc(entryRef);
     } catch (error) {

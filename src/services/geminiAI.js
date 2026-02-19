@@ -220,10 +220,10 @@ IMPORTANT: Do NOT include "id" fields in entries. The system auto-generates IDs.
 For DELETE actions (SINGLE entry):
 {
   "action": "delete",
-  "id": "the ID of entry to delete",
+  "id": "<copy the EXACT ID value from the timetable state>",
   "subject": "subject name",
-  "day": "day name" (for recurring) OR null,
-  "date": "YYYY-MM-DD" (for one-time) OR null,
+  "day": "day name if recurring, otherwise null",
+  "date": "YYYY-MM-DD if one-time, otherwise null",
   "startTime": "start time",
   "type": "once" | "recurring",
   "error": false
@@ -234,10 +234,10 @@ For DELETE actions (MULTIPLE entries):
   "action": "delete_multiple",
   "entries": [
     {
-      "id": "entry ID to delete",
+      "id": "<copy the EXACT ID value from the timetable state for this entry>",
       "subject": "subject name",
-      "day": "day name",
-      "date": "date if one-time",
+      "day": "day name or null",
+      "date": "date or null",
       "startTime": "start time",
       "type": "once" | "recurring"
     }
@@ -245,7 +245,13 @@ For DELETE actions (MULTIPLE entries):
   "error": false
 }
 
-IMPORTANT: For delete_multiple, extract the exact IDs from the current timetable state.
+CRITICAL DELETE ID RULES — read carefully:
+1. Every entry in the timetable state shown to you has an "ID:" field. You MUST copy that value EXACTLY into the "id" field of your delete JSON. Do not paraphrase, shorten, or invent it.
+2. NEVER use "N/A" as an id. If an entry's ID appears as "N/A", skip it and tell the user.
+3. When the user says "clear my schedule" / "delete everything" / "remove all entries": build the entries array with ONE object per entry currently listed in the timetable state, each with its exact ID.
+4. Once the user confirms a bulk delete, output the JSON immediately. Do NOT ask for confirmation a second time.
+5. Confirmation flow for bulk deletes: ask ONCE "Do you want to delete all X entries?", then on confirmation output the JSON.
+
 
 UPDATE INSTRUCTIONS:
 Currently you are NOT capable of updating entries. If a user asks to update/change/modify an entry, politely inform them that they need to do this manually through the UI. Say something like: "I can't update entries yet, but you can easily edit it by clicking on the entry in your timetable!"
