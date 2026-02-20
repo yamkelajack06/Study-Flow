@@ -185,7 +185,7 @@ export function MySignUpPage() {
         <div className={styles.footer}>
           <p>
             Already have an account?{' '}
-            <a href="/signin">Sign in</a>
+            <a href="#" onClick={navigate("/signin")}>Sign in</a>
           </p>
         </div>
       </div>
