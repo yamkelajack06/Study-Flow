@@ -15,7 +15,7 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="/app" element={<HomePage />} />
             <Route path="/signup" element={<MySignInPage />} />
-            <Route path="*" element={<SignInPage />} />
+            <Route path="/signin" element={<SignInPage />} />
           </Routes>
         </Router>
       </PersistenceProvider>
